@@ -1,5 +1,8 @@
 package com.flamel.almacenutt.models.entity;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -9,7 +12,7 @@ public class Usuario implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id_usuario;
+    private Long idUsuario;
 
     @Column(name = "primer_nombre")
     private String primerNombre;
@@ -30,12 +33,12 @@ public class Usuario implements Serializable {
     private String password;
     private Boolean estado;
 
-    public Long getId_usuario() {
-        return id_usuario;
+    public Long getIdUsuario() {
+        return idUsuario;
     }
 
-    public void setId_usuario(Long id_usuario) {
-        this.id_usuario = id_usuario;
+    public void setIdUsuario(Long id_usuario) {
+        this.idUsuario = id_usuario;
     }
 
     public String getPrimerNombre() {

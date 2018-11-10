@@ -2,7 +2,6 @@ package com.flamel.almacenutt.models.service;
 
 import com.flamel.almacenutt.models.dao.UsuarioDao;
 import com.flamel.almacenutt.models.entity.Usuario;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

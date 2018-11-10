@@ -42,7 +42,6 @@ public class JpaUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("Usuario no existe");
         }
 
-        System.out.println(usuario.getPassword());
 
     return new User(usuario.getNombreUsuario(), usuario.getPassword(), usuario.getEstado(), true, true,true, authorities);
     }
