@@ -26,12 +26,13 @@ public class Usuario implements Serializable {
     @JoinColumn(name="id_area")
     private Area area;
 
-    private String rol;
+    private String role;
     @Column(name = "nombre_usuario", unique = true)
     private String nombreUsuario;
 
     private String password;
-    private Boolean estado;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Boolean status = true;
 
     public Long getIdUsuario() {
         return idUsuario;
@@ -81,12 +82,12 @@ public class Usuario implements Serializable {
         this.area = area;
     }
 
-    public String getRol() {
-        return rol;
+    public String getRole() {
+        return role;
     }
 
-    public void setRol(String rol) {
-        this.rol = rol;
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public String getNombreUsuario() {
@@ -105,12 +106,12 @@ public class Usuario implements Serializable {
         this.password = password;
     }
 
-    public Boolean getEstado() {
-        return estado;
+    public Boolean getStatus() {
+        return status;
     }
 
-    public void setEstado(Boolean estado) {
-        this.estado = estado;
+    public void setStatus(Boolean status) {
+        this.status = status;
     }
 
     private static final long serialVersionUID = 1L;

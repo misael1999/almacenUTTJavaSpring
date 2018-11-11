@@ -36,7 +36,8 @@ public class Proveedor implements Serializable {
     private String rfc;
     private String contacto;
     private String correo;
-    private Boolean status;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Boolean status = true;;
     @Column(name = "fecha_creacion")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Date fechaCreacion;
@@ -179,5 +180,8 @@ public class Proveedor implements Serializable {
     public void setIdUsuario(Long idUsuario) {
         this.idUsuario = idUsuario;
     }
+
+    private static final long serialVersionUID = 1L;
+
 }
 

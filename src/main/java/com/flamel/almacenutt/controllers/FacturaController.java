@@ -4,6 +4,7 @@ import com.flamel.almacenutt.models.entity.Factura;
 import com.flamel.almacenutt.models.entity.FacturaProducto;
 import com.flamel.almacenutt.models.entity.Producto;
 import com.flamel.almacenutt.models.service.FacturaService;
+import com.flamel.almacenutt.models.service.ProductoService;
 import com.flamel.almacenutt.util.CustomResponseType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,9 @@ public class FacturaController {
     @Autowired
     private FacturaService facturaService;
 
+    @Autowired
+    private ProductoService productoService;
+
     @RequestMapping(value = "/facturas", method = RequestMethod.GET)
     public ResponseEntity<?> getFacturas() {
         return new ResponseEntity<>(new CustomResponseType("Lista de facturas",
@@ -29,10 +33,16 @@ public class FacturaController {
     }
 
     @RequestMapping(value = "/facturas", method = RequestMethod.POST)
-    public ResponseEntity<?> createFactura(@RequestBody() Producto[] productos) {
+    public ResponseEntity<?> crearFactura(@RequestBody() Factura factura) {
 
-       // System.out.println(factura.getFechaExpedicion());
-        System.out.println(productos[0].getDescripcion());
+        System.out.println(factura.getFechaExpedicion());
+        Producto producto = productoService.getProductoByDescripcion(factura.getItems().get(0).getProducto().getDescripcion());
+        System.out.println(producto.getDescripcion());
+        factura.getItems().clear();
+        FacturaProducto facturaProducto = new FacturaProducto();
+        facturaProducto.setProducto(producto);
+        factura.addItemFactura(facturaProducto);
+       facturaService.saveFactura(factura);
 
         return new ResponseEntity<>("ok", HttpStatus.OK);
     }

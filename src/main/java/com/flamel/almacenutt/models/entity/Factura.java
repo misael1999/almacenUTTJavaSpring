@@ -37,13 +37,14 @@ public class Factura implements Serializable {
     @Column(name = "id_usuario")
     private Long idUsuario;
 
-    private Boolean estado;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Boolean status = true;
 
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "fecha_creacion")
     private Date fechaCreacion;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "id_factura")
     private List<FacturaProducto> items;
 
@@ -88,12 +89,12 @@ public class Factura implements Serializable {
         this.idUsuario = idUsuario;
     }
 
-    public Boolean getEstado() {
-        return estado;
+    public Boolean getStatus() {
+        return status;
     }
 
-    public void setEstado(Boolean estado) {
-        this.estado = estado;
+    public void setStatus(Boolean status) {
+        this.status = status;
     }
 
     public Date getFechaCreacion() {
@@ -111,4 +112,7 @@ public class Factura implements Serializable {
     public void setItems(List<FacturaProducto> items) {
         this.items = items;
     }
+
+    private static final long serialVersionUID = 1L;
+
 }

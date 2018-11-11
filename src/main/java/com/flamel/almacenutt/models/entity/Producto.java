@@ -11,8 +11,6 @@ import java.sql.Date;
 
 @Entity
 @Table(name = "productos")
-@JsonTypeName("producto")
-@JsonTypeInfo(include= JsonTypeInfo.As.WRAPPER_OBJECT,use= JsonTypeInfo.Id.NAME)
 public class Producto implements Serializable {
 
     @Id
@@ -31,7 +29,7 @@ public class Producto implements Serializable {
     private Long idUsuario;
 
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Boolean estado;
+    private Boolean status = true;;
 
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "fecha_creacion")
@@ -84,12 +82,12 @@ public class Producto implements Serializable {
         this.idUsuario = idUsuario;
     }
 
-    public Boolean getEstado() {
-        return estado;
+    public Boolean getStatus() {
+        return status;
     }
 
-    public void setEstado(Boolean estado) {
-        this.estado = estado;
+    public void setStatus(Boolean status) {
+        this.status = status;
     }
 
     public Date getFechaCreacion() {
@@ -99,4 +97,7 @@ public class Producto implements Serializable {
     public void setFechaCreacion(Date fechaCreacion) {
         this.fechaCreacion = fechaCreacion;
     }
+
+    private static final long serialVersionUID = 1L;
+
 }

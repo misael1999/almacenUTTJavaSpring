@@ -14,6 +14,8 @@ public class Area implements Serializable {
     @Column(unique = true)
     private String nombre;
 
+    private String responsable;
+
     public Long getIdArea() {
         return idArea;
     }
@@ -28,6 +30,14 @@ public class Area implements Serializable {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
+    }
+
+    public String getResponsable() {
+        return responsable;
+    }
+
+    public void setResponsable(String responsable) {
+        this.responsable = responsable;
     }
 
     private static final long serialVersionUID = 1L;

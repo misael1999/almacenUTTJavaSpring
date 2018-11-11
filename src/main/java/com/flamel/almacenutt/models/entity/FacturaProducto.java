@@ -16,11 +16,9 @@ public class FacturaProducto implements Serializable {
     @Column(name = "id_factura_producto")
     private Long idFacturaProducto;
 
-//    @Column(name = "id_factura")
-//    private Long idFactura;
-
-    @ManyToOne(fetch= FetchType.EAGER)
+    @ManyToOne(fetch= FetchType.LAZY)
     @JoinColumn(name="id_producto")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Producto producto;
 
     public Producto getProducto() {
@@ -39,11 +37,6 @@ public class FacturaProducto implements Serializable {
         this.idFacturaProducto = idFacturaProducto;
     }
 
-//    public Long getIdFactura() {
-//        return idFactura;
-//    }
-//
-//    public void setIdFactura(Long idFactura) {
-//        this.idFactura = idFactura;
-//    }
+    private static final long serialVersionUID = 1L;
+
 }
