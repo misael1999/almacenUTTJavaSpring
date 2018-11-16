@@ -98,7 +98,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                               AuthenticationException failed) throws IOException, ServletException {
 
 
-        CustomErrorType errorType = new CustomErrorType("Error en la autenticacion", "Username o password incorrecto");
+        CustomErrorType errorType = new CustomErrorType("Username o password incorrecto", "Error en la autenticacion");
 
         response.getWriter().write(new ObjectMapper().writeValueAsString(errorType.getResponse()));
         response.setStatus(401);

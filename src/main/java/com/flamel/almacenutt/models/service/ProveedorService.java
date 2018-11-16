@@ -12,5 +12,7 @@ public interface ProveedorService {
     void saveProveedor(Proveedor proveedor);
     // Buscar proveedor por nombre
     Proveedor getProveedorByNombre(String nombre);
+    List<Proveedor> findProveedorLikeNombre(String nombre);
+//    void updateStatusProveedorById(Long idProveedor);
 
 }

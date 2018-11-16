@@ -18,7 +18,6 @@ public class Proveedor implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_proveedor")
     private Long idProveedor;
-    @Column(unique = true)
     private String nombre;
     private String calle;
     @Column(name = "numero_lote")
@@ -58,7 +57,7 @@ public class Proveedor implements Serializable {
     }
 
     public void setNombre(String nombre) {
-        this.nombre = nombre;
+        this.nombre = nombre.toLowerCase();
     }
 
     public String getTelefono() {

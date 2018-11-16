@@ -4,10 +4,12 @@ import com.flamel.almacenutt.models.dao.ProveedorDao;
 import com.flamel.almacenutt.models.entity.Proveedor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class ProveedorServiceImpl implements ProveedorService{
 
 
@@ -16,7 +18,7 @@ public class ProveedorServiceImpl implements ProveedorService{
 
     @Override
     public List<Proveedor> listAllProveedores() {
-        return proveedorDao.findAll();
+        return proveedorDao.findAllProveedores();
     }
 
     @Override
@@ -26,6 +28,17 @@ public class ProveedorServiceImpl implements ProveedorService{
 
     @Override
     public Proveedor getProveedorByNombre(String nombre) {
-        return proveedorDao.getProveedorByNombre(nombre);
+        return proveedorDao.getProveedorByNombreAndStutusUno(nombre);
     }
+
+    @Override
+    public List<Proveedor> findProveedorLikeNombre(String nombre) {
+        return proveedorDao.findProveedorLikeNombre(nombre);
+    }
+
+//    @Override
+//    public void updateStatusProveedorById(Long idProveedor) {
+//        proveedorDao.updateStatusProveedorById(idProveedor);
+//    }
+
 }

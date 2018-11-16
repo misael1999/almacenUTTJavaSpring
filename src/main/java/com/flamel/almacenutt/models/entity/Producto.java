@@ -21,7 +21,7 @@ public class Producto implements Serializable {
     @Column(unique = true)
     private String descripcion;
 
-    private Long piezas;
+    private Integer cantidad;
     private String unidad;
     private Double precio;
 
@@ -47,15 +47,15 @@ public class Producto implements Serializable {
     }
 
     public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
+        this.descripcion = descripcion.toLowerCase();
     }
 
-    public Long getPiezas() {
-        return piezas;
+    public Integer getCantidad() {
+        return cantidad;
     }
 
-    public void setPiezas(Long piezas) {
-        this.piezas = piezas;
+    public void setCantidad(Integer cantidad) {
+        this.cantidad = cantidad;
     }
 
     public String getUnidad() {

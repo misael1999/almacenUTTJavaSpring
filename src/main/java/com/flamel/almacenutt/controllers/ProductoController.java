@@ -58,7 +58,7 @@ public class ProductoController {
 
     @RequestMapping(value = "/productos", method = RequestMethod.POST)
     public ResponseEntity<?> createProducto(@RequestBody Producto producto) {
-        if(producto.getDescripcion().isEmpty() || producto.getIdUsuario() == 0 || producto.getPiezas() == 0 || producto.getPrecio() == 0 || producto.getUnidad().isEmpty()) {
+        if(producto.getDescripcion().isEmpty() || producto.getIdUsuario() == 0 || producto.getCantidad() == 0 || producto.getPrecio() == 0 || producto.getUnidad().isEmpty()) {
            return new ResponseEntity<>(new CustomErrorType("Campos vacios","No puede haver campos vacios").getResponse(), HttpStatus.CONFLICT);
         }
         productoService.saveProducto(producto);

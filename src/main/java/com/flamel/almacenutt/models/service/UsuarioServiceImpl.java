@@ -13,6 +13,12 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Autowired
     UsuarioDao usuarioDao;
 
+
+    @Override
+    public void saveUsuario(Usuario usuario) {
+        usuarioDao.save(usuario);
+    }
+
     @Override
     public List<Usuario> usuarioList() {
         return usuarioDao.findAll();
@@ -21,6 +27,11 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     public Usuario findByNombreUsuario(String nombreUsuario) {
         return usuarioDao.findByNombreUsuario(nombreUsuario);
+    }
+
+    @Override
+    public Usuario findUsuarioByid(Long idUsuario) {
+        return usuarioDao.findById(idUsuario).orElse(null);
     }
 
 

@@ -26,7 +26,6 @@ public class Factura implements Serializable {
     @Column(name = "fecha_expedicion")
     @Temporal(TemporalType.DATE)
     @DateTimeFormat(pattern="yyyy-MM-dd")
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date fechaExpedicion;
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -43,6 +42,10 @@ public class Factura implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "fecha_creacion")
     private Date fechaCreacion;
+
+    private String descripcion;
+
+
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "id_factura")
@@ -111,6 +114,14 @@ public class Factura implements Serializable {
 
     public void setItems(List<FacturaProducto> items) {
         this.items = items;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
     }
 
     private static final long serialVersionUID = 1L;
