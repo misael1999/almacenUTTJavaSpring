@@ -7,12 +7,9 @@ import java.util.List;
 
 public interface ProveedorService {
 
-    List<Proveedor> listAllProveedores();
-    // Guardar y actualizar
+    List<Proveedor> findAllProveedores();
     void saveProveedor(Proveedor proveedor);
-    // Buscar proveedor por nombre
     Proveedor getProveedorByNombre(String nombre);
-    List<Proveedor> findProveedorLikeNombre(String nombre);
-//    void updateStatusProveedorById(Long idProveedor);
+    List<Proveedor> findAllProveedorLikeNombre(String nombre);
 
 }

@@ -27,4 +27,19 @@ public class FacturaServiceImpl implements FacturaService {
     public Factura findFacturaById(Long idFactura) {
         return null;
     }
+
+    @Override
+    public List<Factura> listFacturasActivas() {
+        return facturaDao.findAllFacturasActivas();
+    }
+
+    @Override
+    public List<Factura> listFacturasEntregadas() {
+        return facturaDao.findAllFacturasEntregadas();
+    }
+
+    @Override
+    public Factura getFacturaByFolio(String folio) {
+        return facturaDao.getFacturaByFolio(folio);
+    }
 }

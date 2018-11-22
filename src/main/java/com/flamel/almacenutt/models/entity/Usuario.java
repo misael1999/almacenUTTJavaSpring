@@ -22,9 +22,9 @@ public class Usuario implements Serializable {
     private String apellidoPaterno;
     @Column(name = "apellido_materno")
     private String apellidoMaterno;
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="id_area")
-    private Area area;
+//    @OneToOne(fetch = FetchType.EAGER)
+//    @JoinColumn(name="id_area")
+//    private Area area;
 
     private String role;
     @Column(name = "nombre_usuario", unique = true)
@@ -74,13 +74,13 @@ public class Usuario implements Serializable {
         this.apellidoMaterno = apellidoMaterno;
     }
 
-    public Area getArea() {
-        return area;
-    }
-
-    public void setArea(Area area) {
-        this.area = area;
-    }
+//    public Area getArea() {
+//        return area;
+//    }
+//
+//    public void setArea(Area area) {
+//        this.area = area;
+//    }
 
     public String getRole() {
         return role;

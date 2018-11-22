@@ -12,7 +12,9 @@ import java.util.List;
 public interface ProductoDao extends JpaRepository<Producto,Long> {
 
     Producto getProductoByDescripcion(String descripcion);
+    @Query("select p from Producto p order by p.idProducto desc")
+    List<Producto> findAllProductos();
 
     @Query("select p from Producto p where p.descripcion LIKE CONCAT('%',:descripcion,'%')")
-    List<Producto> getProductosByDescripcionLike(@Param("descripcion") String descripcion);
+    List<Producto> findAllProductosByDescripcionLike(@Param("descripcion") String descripcion);
 }

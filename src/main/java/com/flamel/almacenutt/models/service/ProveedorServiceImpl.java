@@ -17,7 +17,7 @@ public class ProveedorServiceImpl implements ProveedorService{
     private ProveedorDao proveedorDao;
 
     @Override
-    public List<Proveedor> listAllProveedores() {
+    public List<Proveedor> findAllProveedores() {
         return proveedorDao.findAllProveedores();
     }
 
@@ -32,7 +32,7 @@ public class ProveedorServiceImpl implements ProveedorService{
     }
 
     @Override
-    public List<Proveedor> findProveedorLikeNombre(String nombre) {
+    public List<Proveedor> findAllProveedorLikeNombre(String nombre) {
         return proveedorDao.findProveedorLikeNombre(nombre);
     }
 

@@ -10,7 +10,7 @@ import io.jsonwebtoken.Claims;
 
 public interface JWTService {
 
-	public String create(Authentication auth) throws IOException;
+	public String create(Authentication auth, Long idUsuario) throws IOException;
 	public boolean validate(String token);
 	public Claims getClaims(String token);
 	public String getUsername(String token);

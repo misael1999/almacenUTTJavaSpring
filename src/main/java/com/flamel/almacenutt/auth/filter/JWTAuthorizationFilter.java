@@ -2,6 +2,7 @@ package com.flamel.almacenutt.auth.filter;
 
 import com.flamel.almacenutt.auth.services.JWTService;
 import com.flamel.almacenutt.auth.services.JWTServiceImpl;
+import com.flamel.almacenutt.models.service.UsuarioService;
 import io.jsonwebtoken.Claims;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,6 +18,7 @@ import java.io.IOException;
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
     private JWTService jwtService;
+
 
 
     public JWTAuthorizationFilter(AuthenticationManager authenticationManager, JWTService jwtService) {

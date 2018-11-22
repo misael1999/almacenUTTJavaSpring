@@ -8,4 +8,7 @@ public interface FacturaService {
     void saveFactura(Factura factura);
     List<Factura> findAllFacturas();
     Factura findFacturaById(Long idFactura);
+    List<Factura> listFacturasActivas();
+    List<Factura> listFacturasEntregadas();
+    Factura getFacturaByFolio(String folio);
 }

@@ -13,10 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -33,16 +30,39 @@ public class FacturaController {
     private ProductoService productoService;
 
     @RequestMapping(value = "/facturas", method = RequestMethod.GET)
-    public ResponseEntity<?> getFacturas() {
+    public ResponseEntity<?> getFacturas(@RequestParam(value = "entregadas", required = false) String entregadas, @RequestParam(value = "folio",required = false) String folio ) {
+
+        if (folio != null) {
+            return new ResponseEntity<>(new CustomResponseType("Factura",
+                    "factura",
+                    facturaService.getFacturaByFolio(folio), "Factura encontrada").getResponse(),
+                    HttpStatus.OK);
+        }
+
+        if (entregadas != null) {
+            return new ResponseEntity<>(new CustomResponseType("Lista de facturas",
+                    "facturas",
+                    facturaService.listFacturasEntregadas(), "").getResponse(),
+                    HttpStatus.OK);
+        }
+
         return new ResponseEntity<>(new CustomResponseType("Lista de facturas",
                 "facturas",
-                facturaService.findAllFacturas(), "").getResponse(),
+                facturaService.listFacturasActivas(), "").getResponse(),
                 HttpStatus.OK);
     }
     @RequestMapping(value = "/facturas", method = RequestMethod.POST)
     public ResponseEntity<?> crearFactura(@RequestBody() Factura factura) {
 
-            if (factura.getFechaExpedicion() == null || factura.getProveedor().getIdProveedor() == null) {
+        Factura facturaExist = facturaService.getFacturaByFolio(factura.getFolio());
+
+        if (facturaExist != null) {
+            return new ResponseEntity<>(new CustomErrorType("La factura con el folio " + factura.getFolio() + " ya existe",
+                    "La factura ya existe").getResponse(),
+                    HttpStatus.CONFLICT);
+        }
+
+            if (factura.getFechaExpedicion() == null || factura.getProveedor().getIdProveedor() == null || factura.getFolio() == null) {
                 return new ResponseEntity<>(new CustomErrorType("Ingresa los campos obligatorios", "No has ingresado los campos obligatorios").getResponse(), HttpStatus.CONFLICT);
             }
 
@@ -72,8 +92,8 @@ public class FacturaController {
 
             facturaService.saveFactura(factura);
 
-            return new ResponseEntity<>(new CustomResponseType("Ha sido registrada la factura  con el folio " + factura.getIdFactura(),
-                    "", "", "Factura registrada").getResponse(), HttpStatus.OK);
+            return new ResponseEntity<>(new CustomResponseType("Ha sido registrada la factura  con el folio " + factura.getFolio(),
+                    "folio", factura.getFolio(), "Factura registrada").getResponse(), HttpStatus.OK);
 
     }
 

@@ -28,7 +28,7 @@ public class ProveedorController {
 
         return new ResponseEntity<>(new CustomResponseType("Lista de proveedores",
                 "proveedores",
-                proveedorService.listAllProveedores(), "").getResponse(),
+                proveedorService.findAllProveedores(), "").getResponse(),
                 HttpStatus.OK);
     }
 
@@ -73,7 +73,7 @@ public class ProveedorController {
 
         return new ResponseEntity<>(new CustomResponseType("Proveedores que coinciden con " + nombre,
                 "proveedores",
-                proveedorService.findProveedorLikeNombre(nombre),
+                proveedorService.findAllProveedorLikeNombre(nombre),
                 "Proveedores encontrados").getResponse(), HttpStatus.OK);
     }
 

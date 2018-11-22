@@ -23,6 +23,9 @@ public class Factura implements Serializable {
     @Column(name = "id_factura")
     private Long idFactura;
 
+    @Column(unique = true)
+    private String folio;
+
     @Column(name = "fecha_expedicion")
     @Temporal(TemporalType.DATE)
     @DateTimeFormat(pattern="yyyy-MM-dd")
@@ -55,6 +58,14 @@ public class Factura implements Serializable {
         this.items = new ArrayList<>();
     }
 
+
+    public String getFolio() {
+        return folio;
+    }
+
+    public void setFolio(String folio) {
+        this.folio = folio.toLowerCase();
+    }
 
     public void addItemFactura(FacturaProducto item) {
         this.items.add(item);

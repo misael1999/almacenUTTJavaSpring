@@ -37,7 +37,7 @@ public class Area implements Serializable {
     }
 
     public void setResponsable(String responsable) {
-        this.responsable = responsable;
+        this.responsable = responsable.toLowerCase();
     }
 
     private static final long serialVersionUID = 1L;

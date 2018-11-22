@@ -30,11 +30,12 @@ public class JWTServiceImpl implements JWTService {
     public static final String HEADER_STRING = "Authorization";
 
     @Override
-    public String create(Authentication authResult) throws IOException {
+    public String create(Authentication authResult, Long idUsuario) throws IOException {
         User user = ((User) authResult.getPrincipal());
         Claims claims = Jwts.claims();
         Collection<? extends GrantedAuthority> roles = authResult.getAuthorities();
         claims.put("authorities", new ObjectMapper().writeValueAsString(roles));
+        claims.put("id", idUsuario);
 //        String secretKeyString = new String(SECRET_KEY.getEncoded(), StandardCharsets.UTF_16);
         String token = Jwts.builder()
                 .setClaims(claims)

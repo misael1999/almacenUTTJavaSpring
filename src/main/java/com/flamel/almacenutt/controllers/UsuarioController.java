@@ -6,9 +6,12 @@ import com.flamel.almacenutt.models.service.UsuarioService;
 import com.flamel.almacenutt.util.ChangePassword;
 import com.flamel.almacenutt.util.CustomErrorType;
 import com.flamel.almacenutt.util.CustomResponseType;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,9 +39,10 @@ public class UsuarioController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/usuarios/password/{id}", method = RequestMethod.PATCH)
-    public ResponseEntity<?> cambiarPassword(@RequestBody ChangePassword changePassword, @PathVariable("id") Long idUsuario) {
-        Usuario usuario = usuarioService.findUsuarioByid(idUsuario);
+    @RequestMapping(value = "/usuarios/password", method = RequestMethod.PATCH)
+    public ResponseEntity<?> cambiarPassword(@RequestBody ChangePassword changePassword, Authentication authentication) {
+
+        Usuario usuario = usuarioService.findByNombreUsuario(authentication.getName());
 
         if (usuario == null) {
             return new ResponseEntity<>(new CustomErrorType("No existe el usuario", "El usuario no existe").getResponse(), HttpStatus.CONFLICT);
@@ -51,9 +55,17 @@ public class UsuarioController {
         usuario.setPassword(passwordEncoder.encode(changePassword.getPasswordNueva()));
         usuarioService.saveUsuario(usuario);
 
-        return new ResponseEntity<>(new CustomResponseType("Se ha cambiado la contraseña", "", "", "Se cambia la contraseña").getResponse(), HttpStatus.OK);
+        return new ResponseEntity<>(new CustomResponseType("Se ha cambiado la contraseña", "", "", "Se cambio la contraseña").getResponse(), HttpStatus.OK);
 
     }
+
+    // AREAS
+    @RequestMapping(value = "/areas", method = RequestMethod.GET)
+    public ResponseEntity<?> getAreas() {
+        return new ResponseEntity<>(new CustomResponseType("Lista de areas", "areas", usuarioService.findAllAreas(), "Areas encontradas").getResponse(), HttpStatus.OK);
+    }
+
+
 
 
 

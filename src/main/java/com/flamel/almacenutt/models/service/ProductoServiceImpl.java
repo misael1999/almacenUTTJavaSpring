@@ -19,8 +19,8 @@ public class ProductoServiceImpl implements ProductoService {
         productoDao.save(producto);
     }
     @Override
-    public List<Producto> listAllProducts() {
-        return productoDao.findAll();
+    public List<Producto> findAllProductos() {
+        return productoDao.findAllProductos();
     }
 
     @Override
@@ -29,8 +29,8 @@ public class ProductoServiceImpl implements ProductoService {
     }
 
     @Override
-    public List<Producto> getProductosByDescripcionLike(String descripcion) {
-        return productoDao.getProductosByDescripcionLike(descripcion);
+    public List<Producto> findAllProductosByDescripcionLike(String descripcion) {
+        return productoDao.findAllProductosByDescripcionLike(descripcion);
     }
 
 

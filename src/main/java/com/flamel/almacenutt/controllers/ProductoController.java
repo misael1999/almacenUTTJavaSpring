@@ -30,7 +30,7 @@ public class ProductoController {
     public ResponseEntity<?> getProductos() {
         return new ResponseEntity<>(new CustomResponseType("Lista de productos",
                 "productos",
-                productoService.listAllProducts(), "").getResponse(),
+                productoService.findAllProductos(), "").getResponse(),
                 HttpStatus.OK);
     }
 
@@ -41,7 +41,7 @@ public class ProductoController {
 
         return new ResponseEntity<>(new CustomResponseType("Productos encontrados",
                 "productos",
-                productoService.getProductosByDescripcionLike(descripcion), "").getResponse(),
+                productoService.findAllProductosByDescripcionLike(descripcion), "").getResponse(),
                 HttpStatus.OK);
     }
 
