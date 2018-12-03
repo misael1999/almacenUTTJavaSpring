@@ -14,7 +14,7 @@ public interface UsuarioService {
     Usuario findUsuarioByid(Long idUsuario);
 
     List<Area> findAllAreas();
-    void saveArea();
+    void saveArea(Area area);
     Area findAreaByid(Long idArea);
     Area findAreaByNombre(String nombre);
 

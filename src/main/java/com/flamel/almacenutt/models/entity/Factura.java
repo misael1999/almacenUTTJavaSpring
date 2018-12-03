@@ -1,9 +1,6 @@
 package com.flamel.almacenutt.models.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
@@ -22,10 +19,6 @@ public class Factura implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_factura")
     private Long idFactura;
-
-    @Column(unique = true)
-    private String folio;
-
     @Column(name = "fecha_expedicion")
     @Temporal(TemporalType.DATE)
     @DateTimeFormat(pattern="yyyy-MM-dd")
@@ -47,7 +40,8 @@ public class Factura implements Serializable {
     private Date fechaCreacion;
 
     private String descripcion;
-
+    private String folio;
+    private String documento;
 
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
@@ -134,6 +128,27 @@ public class Factura implements Serializable {
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
     }
+
+    public String getDocumento() {
+        return documento;
+    }
+
+    public void setDocumento(String documento) {
+        this.documento = documento;
+    }
+
+    public Double getTotal() {
+        Double total = 0.0;
+
+        int size = items.size();
+
+        for (int i = 0; i < size; i++) {
+            total += items.get(i).calcularImporte();
+        }
+        return total;
+    }
+
+
 
     private static final long serialVersionUID = 1L;
 

@@ -18,6 +18,8 @@ public class Producto implements Serializable {
     @Column(name = "id_producto")
     private Long idProducto;
 
+    private String clave;
+
     @Column(unique = true)
     private String descripcion;
 
@@ -35,6 +37,13 @@ public class Producto implements Serializable {
     @Column(name = "fecha_creacion")
     private Date fechaCreacion;
 
+    public String getClave() {
+        return clave;
+    }
+
+    public void setClave(String clave) {
+        this.clave = clave;
+    }
 
     public Long getIdProducto() {
         return idProducto;

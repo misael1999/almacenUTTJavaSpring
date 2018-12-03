@@ -5,6 +5,7 @@ import com.flamel.almacenutt.models.service.ProductoService;
 import com.flamel.almacenutt.util.CustomErrorType;
 import com.flamel.almacenutt.util.CustomResponseType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -26,11 +27,11 @@ public class ProductoController {
 
 
     // Obtener todos los productos almacenados
-    @RequestMapping(value = "/productos", method = RequestMethod.GET)
-    public ResponseEntity<?> getProductos() {
+    @RequestMapping(value = "/productos/page/{page}", method = RequestMethod.GET)
+    public ResponseEntity<?> getProductos(@PathVariable("page") Integer page) {
         return new ResponseEntity<>(new CustomResponseType("Lista de productos",
                 "productos",
-                productoService.findAllProductos(), "").getResponse(),
+                productoService.findAllProductos(PageRequest.of(page, 15)), "").getResponse(),
                 HttpStatus.OK);
     }
 

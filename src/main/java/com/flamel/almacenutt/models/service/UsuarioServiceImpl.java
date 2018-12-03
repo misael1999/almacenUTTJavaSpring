@@ -19,7 +19,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public List<Usuario> findAllUsuarios() {
-        return null;
+        return usuarioDao.findAllUsuarios();
     }
 
     @Override
@@ -34,7 +34,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public Usuario findByNombreUsuario(String nombreUsuario) {
-        return usuarioDao.findByNombreUsuario(nombreUsuario);
+        return usuarioDao.findByNombreUsuarioStatus(nombreUsuario);
     }
 
     @Override
@@ -44,12 +44,12 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public List<Area> findAllAreas() {
-        return areaDao.findAll();
+        return areaDao.listAllArea();
     }
 
     @Override
-    public void saveArea() {
-
+    public void saveArea(Area area) {
+        areaDao.save(area);
     }
 
     @Override

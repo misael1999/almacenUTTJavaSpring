@@ -3,6 +3,8 @@ package com.flamel.almacenutt.models.service;
 import com.flamel.almacenutt.models.dao.ProductoDao;
 import com.flamel.almacenutt.models.entity.Producto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,10 +20,12 @@ public class ProductoServiceImpl implements ProductoService {
     public void saveProducto(Producto producto) {
         productoDao.save(producto);
     }
+
     @Override
-    public List<Producto> findAllProductos() {
-        return productoDao.findAllProductos();
+    public Page<Producto> findAllProductos(Pageable pageable) {
+        return productoDao.findAllProductos(pageable);
     }
+
 
     @Override
     public Producto getProductoByDescripcion(String descripcion) {

@@ -16,6 +16,8 @@ public class Area implements Serializable {
 
     private String responsable;
 
+    private Boolean status;
+
     public Long getIdArea() {
         return idArea;
     }
@@ -38,6 +40,14 @@ public class Area implements Serializable {
 
     public void setResponsable(String responsable) {
         this.responsable = responsable.toLowerCase();
+    }
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
     }
 
     private static final long serialVersionUID = 1L;

@@ -11,9 +11,11 @@ import java.util.List;
 
 @Repository
 public interface UsuarioDao extends JpaRepository<Usuario, Long> {
-    Usuario findByNombreUsuario(String nombreUsuario);
 
-    @Query("select u from Usuario u order by u.idUsuario desc")
+    @Query("select u from Usuario u where u.nombreUsuario=?1 and u.status = 1")
+    Usuario findByNombreUsuarioStatus(String nombreUsuario);
+
+    @Query("select u from Usuario u where u.status=1 order by u.idUsuario desc")
     List<Usuario> findAllUsuarios();
 }
 

@@ -29,7 +29,7 @@ public class JpaUserDetailsService implements UserDetailsService {
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String nombreUsuaio) throws UsernameNotFoundException {
 
-        Usuario usuario = usuarioDao.findByNombreUsuario(nombreUsuaio);
+        Usuario usuario = usuarioDao.findByNombreUsuarioStatus(nombreUsuaio);
         if (usuario == null) {
             logger.error("Error no existe el usuario");
             throw new UsernameNotFoundException("Usuario no existe");
