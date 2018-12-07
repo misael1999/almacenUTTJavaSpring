@@ -56,19 +56,10 @@ public class FacturaServiceImpl implements FacturaService {
     }
 
     @Override
-    public void saveValeSalida(ValeSalida valeSalida) {
-        valeSalidaDao.save(valeSalida);
+    public Page<Factura> listFacturasWithDocuments(Pageable pageable) {
+        return facturaDao.listFacturasWithDocuments(pageable);
     }
 
-    @Override
-    public List<ValeSalida> listValeSalidaActivas() {
-        return valeSalidaDao.listValeSalidaActivas();
-    }
-
-    @Override
-    public List<ValeSalida> listValeSalidaEntregadas() {
-        return valeSalidaDao.listValeSalidaEntregadas();
-    }
 
 //    @Override
 //    public ValeSalida getValeSalidaById(Long idValeSalida) {

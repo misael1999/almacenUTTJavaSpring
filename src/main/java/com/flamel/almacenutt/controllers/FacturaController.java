@@ -204,29 +204,14 @@ public class FacturaController {
 
     }
 
-    // VALES DE SALIDAS
+    @RequestMapping(value = "/facturas/documentos/{page}", method = RequestMethod.GET)
+    public ResponseEntity<?> getFacturasWithDcouments(@PathVariable("page") Integer page) {
 
-    @RequestMapping(value = "/vales", method = RequestMethod.GET)
-    public ResponseEntity<?> getValesSalidas(@RequestParam(value = "entregadas", required = false) String entregadas) {
-
-        if (entregadas != null) {
-            return new ResponseEntity<>(new CustomResponseType("Lista de vales entregadas",
-                    "vales",
-                    facturaService.listValeSalidaEntregadas(), "").getResponse(),
-                    HttpStatus.OK);
-        }
-
-        return new ResponseEntity<>(new CustomResponseType("Lista de vales activas",
-                "vales",
-                facturaService.listValeSalidaActivas(), "").getResponse(),
-                HttpStatus.OK);
+        return new ResponseEntity<>(new CustomResponseType("Facturas con documentos",
+                "facturas",
+                facturaService.listFacturasWithDocuments(PageRequest.of(page, 10)),
+                "Facturas encontradas").getResponse(), HttpStatus.OK);
     }
-
-
-//    @RequestMapping(value = "/vales", method = RequestMethod.POST)
-//    public ResponseEntity<?> createValeSalida(@RequestBody() ValeSalida valeSalida) {
-//
-//    }
 
 
 }

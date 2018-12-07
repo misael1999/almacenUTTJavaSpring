@@ -16,11 +16,5 @@ public interface FacturaService {
     Page<Factura> listFacturasEntregadas(Pageable pageable);
     Factura getFacturaByFolio(String folio);
     List<Factura> findFacturaLikeTermino(@Param("termino") String termino);
-
-    // VALES DE SALIDAS
-
-    void saveValeSalida(ValeSalida valeSalida);
-    List<ValeSalida> listValeSalidaActivas();
-    List<ValeSalida> listValeSalidaEntregadas();
-//    ValeSalida getValeSalidaById(Long idValeSalida);
+    Page<Factura> listFacturasWithDocuments(Pageable pageable);
 }

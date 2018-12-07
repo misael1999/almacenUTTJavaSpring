@@ -99,6 +99,11 @@ public class ValeSalida implements Serializable {
         this.status = status;
     }
 
+    public void addItemVale(ValeProducto item) {
+        this.items.add(item);
+    }
+
+
     public Long getNumeroRequisicion() {
         return numeroRequisicion;
     }
