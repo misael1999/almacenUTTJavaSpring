@@ -14,7 +14,7 @@ public class EstadisticaServiceImpl implements EstadisticaService {
     ValeSalidaDao valeSalidaDao;
 
     @Override
-    public List<ValesByArea> valesByArea(Integer mes, Integer año) {
-        return valeSalidaDao.valesByArea(mes, año);
+    public List<ValesByArea> valesByArea(Integer mes, Integer ano) {
+        return valeSalidaDao.valesByArea(mes, ano);
     }
 }

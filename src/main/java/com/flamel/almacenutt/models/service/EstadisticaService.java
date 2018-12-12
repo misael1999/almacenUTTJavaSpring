@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface EstadisticaService {
 
-    List<ValesByArea> valesByArea(Integer mes, Integer año);
+    List<ValesByArea> valesByArea(Integer mes, Integer ano);
 
 }

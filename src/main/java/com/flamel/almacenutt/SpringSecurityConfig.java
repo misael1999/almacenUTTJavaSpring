@@ -45,7 +45,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-
+// v1/facturas/descargar/
         http.csrf().disable()
                 .cors().and().authorizeRequests().antMatchers("/**")
                 .permitAll()

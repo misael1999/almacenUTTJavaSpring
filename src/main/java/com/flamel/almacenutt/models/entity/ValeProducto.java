@@ -15,7 +15,7 @@ public class ValeProducto implements Serializable {
     private Long idSalidaProducto;
 
     @Column(name = "cantidad_solicitada")
-    private Integer cantidaSolicitada;
+    private Integer cantidadSolicitada;
 
     @Column(name ="cantidad_entregada")
     private Integer cantidadEntregada;
@@ -36,12 +36,12 @@ public class ValeProducto implements Serializable {
         this.idSalidaProducto = idSalidaProducto;
     }
 
-    public Integer getCantidaSolicitada() {
-        return cantidaSolicitada;
+    public Integer getCantidadSolicitada() {
+        return cantidadSolicitada;
     }
 
-    public void setCantidaSolicitada(Integer cantidaSolicitada) {
-        this.cantidaSolicitada = cantidaSolicitada;
+    public void setCantidadSolicitada(Integer cantidadSolicitada) {
+        this.cantidadSolicitada = cantidadSolicitada;
     }
 
     public Integer getCantidadEntregada() {

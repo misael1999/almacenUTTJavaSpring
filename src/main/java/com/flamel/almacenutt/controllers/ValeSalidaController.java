@@ -2,12 +2,16 @@ package com.flamel.almacenutt.controllers;
 
 import com.flamel.almacenutt.models.entity.*;
 import com.flamel.almacenutt.models.service.ProductoService;
+import com.flamel.almacenutt.models.service.UsuarioService;
 import com.flamel.almacenutt.models.service.ValeSalidaService;
 import com.flamel.almacenutt.util.CustomErrorType;
 import com.flamel.almacenutt.util.CustomResponseType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,28 +26,67 @@ public class ValeSalidaController {
     @Autowired
     private ProductoService productoService;
 
+    @Autowired
+    private UsuarioService usuarioService;
+
     // VALES DE SALIDAS
 
-    @RequestMapping(value = "/vales", method = RequestMethod.GET)
-    public ResponseEntity<?> getValesSalidas(@RequestParam(value = "entregadas", required = false) String entregadas) {
+    @RequestMapping(value = "/vales/page/{page}", method = RequestMethod.GET)
+    public ResponseEntity<?> getValesSalidas(@PathVariable("page") Integer page,
+                                             @RequestParam(value = "entregadas", required = false) String entregadas,
+                                             @RequestParam(value = "ordenar", required = true) String ordenar) {
+
+        Sort sort = null;
+        if (ordenar.equals("desc")) {
+            sort = Sort.by("fechaEntrega").descending();
+        } else if (ordenar.equals("asc")) {
+            sort = Sort.by("fechaEntrega").ascending();
+        }
 
         if (entregadas != null) {
             return new ResponseEntity<>(new CustomResponseType("Lista de vales entregadas",
                     "vales",
-                    valeSalidaService.listValeSalidaEntregadas(), "").getResponse(),
+                    valeSalidaService.listValeSalidaEntregadas(PageRequest.of(page, 15, sort)), "").getResponse(),
                     HttpStatus.OK);
         }
 
         return new ResponseEntity<>(new CustomResponseType("Lista de vales activas",
                 "vales",
-                valeSalidaService.listValeSalidaActivas(), "").getResponse(),
+                valeSalidaService.listValeSalidaActivas(PageRequest.of(page, 15, sort)), "").getResponse(),
                 HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/vales", method = RequestMethod.POST)
-    public ResponseEntity<?> crearValeSalida(@RequestBody() ValeSalida vale) {
-        ValeSalida valeExist = valeSalidaService.findValeSalidaByNumeroRequisicion(vale.getNumeroRequisicion());
+    // OBTENER VALE POR NUMERO DE REQUISION
+    @RequestMapping(value = "/vales/requisicion/{numeroRequision}", method = RequestMethod.GET)
+    public ResponseEntity<?> getValeByNumeroRequisicion(@PathVariable("numeroRequision") Long numeroRequision) {
+        return new ResponseEntity<>(new CustomResponseType("Vale de salida", "vale",
+                valeSalidaService.getValeSalidaByNumeroRequisicion(numeroRequision), "").getResponse(),
+                HttpStatus.OK);
+    }
 
+    // OBTENER COINCIDENCIAS DE VALES DE SALIDA
+    @RequestMapping(value = "/vales/todo/{termino}", method = RequestMethod.GET)
+    public ResponseEntity<?> getValeLikeTermino(@PathVariable("termino") String termino) {
+
+        return new ResponseEntity<>(new CustomResponseType("vales encontradas",
+                "vales", valeSalidaService.getValesByTerminoLike(termino),
+                "").getResponse(), HttpStatus.OK);
+    }
+
+
+    // OBTENER VALES POR AREA
+    @RequestMapping(value = "/vales/{id}", method = RequestMethod.GET)
+    public ResponseEntity<?> getValesSalidas(@PathVariable("id") Long idArea) {
+
+        return new ResponseEntity<>(new CustomResponseType("Vales", "vales",
+                valeSalidaService.findValeSalidaByIdArea(idArea),"").getResponse(),
+                HttpStatus.OK);
+    }
+
+
+    @RequestMapping(value = "/vales", method = RequestMethod.POST)
+    public ResponseEntity<?> crearValeSalida(@RequestBody() ValeSalida vale, Authentication authentication) {
+        ValeSalida valeExist = valeSalidaService.findValeSalidaByNumeroRequisicion(vale.getNumeroRequisicion());
         if (valeExist != null) {
             return new ResponseEntity<>(new CustomErrorType("El vale de salida de la requisición número " + vale.getNumeroRequisicion() + " ya existe",
                     "El vale de salida ya existe").getResponse(), HttpStatus.CONFLICT);
@@ -69,6 +112,13 @@ public class ValeSalidaController {
                         HttpStatus.CONFLICT);
             }
         }
+        Usuario usuario = usuarioService.findByNombreUsuario(authentication.getName());
+        if (usuario.getRole().equals("ROLE_USER")) {
+            return new ResponseEntity<>(new CustomErrorType("No tienes permisos para esta accion",
+                    "Accion denegada").getResponse(),
+                    HttpStatus.CONFLICT);
+        }
+        vale.setIdUsuario(usuario.getIdUsuario());
         valeSalidaService.saveValeSalida(vale);
 
         return new ResponseEntity<>(new CustomResponseType("Se regitró el vale de salida con el número " + vale.getNumeroRequisicion(),

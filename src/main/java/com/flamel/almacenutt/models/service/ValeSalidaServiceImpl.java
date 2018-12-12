@@ -1,10 +1,14 @@
 package com.flamel.almacenutt.models.service;
 
 import com.flamel.almacenutt.models.dao.ValeSalidaDao;
+import com.flamel.almacenutt.models.entity.Factura;
 import com.flamel.almacenutt.models.entity.ValeSalida;
 import com.flamel.almacenutt.models.model.ValesByArea;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Pageable;
+
 
 import java.util.List;
 
@@ -20,13 +24,13 @@ public class ValeSalidaServiceImpl implements ValeSalidaService {
     }
 
     @Override
-    public List<ValeSalida> listValeSalidaActivas() {
-        return valeSalidaDao.listValeSalidaActivas();
+    public Page<ValeSalida> listValeSalidaActivas(Pageable pageable) {
+        return valeSalidaDao.listValeSalidaActivas(pageable);
     }
 
     @Override
-    public List<ValeSalida> listValeSalidaEntregadas() {
-        return valeSalidaDao.listValeSalidaEntregadas();
+    public Page<ValeSalida> listValeSalidaEntregadas(Pageable pageable) {
+        return valeSalidaDao.listValeSalidaEntregadas(pageable);
     }
 
     @Override
@@ -34,6 +38,20 @@ public class ValeSalidaServiceImpl implements ValeSalidaService {
         return valeSalidaDao.findValeSalidaByNumeroRequisicion(numeroRequisicion);
     }
 
+    @Override
+    public List<ValeSalida> findValeSalidaByIdArea(Long idArea) {
+        return valeSalidaDao.findValeSalidaByIdArea(idArea);
+    }
+
+    @Override
+    public ValeSalida getValeSalidaByNumeroRequisicion(Long numeroRequisicion) {
+        return valeSalidaDao.getValeSalidaByNumeroRequisicion(numeroRequisicion);
+    }
+
+    @Override
+    public List<ValeSalida> getValesByTerminoLike(String termino) {
+        return valeSalidaDao.getValesByTerminoLike(termino);
+    }
 
 
 }

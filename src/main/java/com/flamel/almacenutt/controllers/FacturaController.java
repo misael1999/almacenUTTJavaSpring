@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,18 +38,27 @@ public class FacturaController {
     private ProductoService productoService;
 
     @RequestMapping(value = "/facturas/page/{page}", method = RequestMethod.GET)
-    public ResponseEntity<?> getFacturas(@PathVariable("page") Integer page, @RequestParam(value = "entregadas", required = false) String entregadas) {
+    public ResponseEntity<?> getFacturas(@PathVariable("page") Integer page,
+                                         @RequestParam(value = "entregadas", required = false) String entregadas,
+                                         @RequestParam(value = "ordenar", required = true) String ordenar) {
+
+        Sort sort = null;
+        if (ordenar.equals("desc")) {
+            sort = Sort.by("fechaExpedicion").descending();
+        } else if (ordenar.equals("asc")) {
+            sort = Sort.by("fechaExpedicion").ascending();
+        }
 
         if (entregadas != null) {
             return new ResponseEntity<>(new CustomResponseType("Lista de facturas",
                     "facturas",
-                    facturaService.listFacturasEntregadas(PageRequest.of(page,  15)), "").getResponse(),
+                    facturaService.listFacturasEntregadas(PageRequest.of(page,  15, sort)), "").getResponse(),
                     HttpStatus.OK);
         }
 
         return new ResponseEntity<>(new CustomResponseType("Lista de facturas",
                 "facturas",
-                facturaService.listFacturasActivas(PageRequest.of(page, 15)), "").getResponse(),
+                facturaService.listFacturasActivas(PageRequest.of(page, 15, sort)), "").getResponse(),
                 HttpStatus.OK);
     }
 
@@ -102,6 +112,7 @@ public class FacturaController {
             if (productoAux == null) {
                 producto.setIdUsuario(factura.getIdUsuario());
                 producto.setCantidad(facturaItems.get(i).getCantidad());
+                producto.setIdProveedor(factura.getProveedor().getIdProveedor());
                 productoService.saveProducto(producto);
                 facturaProducto.setProducto(producto);
                 facturaProducto.setCantidad(facturaItems.get(i).getCantidad());
@@ -182,7 +193,7 @@ public class FacturaController {
     }
 
     // DESCARGAR DOCUMENTO DE LA FACTURA
-    @RequestMapping(value = "/facturas/documento/{nombre}", method = RequestMethod.GET)
+    @RequestMapping(value = "/facturas/descargar/documento/{nombre}", method = RequestMethod.GET)
     public ResponseEntity<org.springframework.core.io.Resource> getArchivo(@PathVariable(value = "nombre") String nombreArchivo) {
 
         Path rutaArchivo = Paths.get("uploads/facturas").resolve(nombreArchivo).toAbsolutePath();

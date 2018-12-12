@@ -26,6 +26,8 @@ public class Producto implements Serializable {
     private Integer cantidad;
     private String unidad;
     private Double precio;
+    @Column(name = "id_proveedor")
+    private Long idProveedor;
 
     @Column(name = "id_usuario")
     private Long idUsuario;
@@ -105,6 +107,14 @@ public class Producto implements Serializable {
 
     public void setFechaCreacion(Date fechaCreacion) {
         this.fechaCreacion = fechaCreacion;
+    }
+
+    public Long getIdProveedor() {
+        return idProveedor;
+    }
+
+    public void setIdProveedor(Long idProveedor) {
+        this.idProveedor = idProveedor;
     }
 
     private static final long serialVersionUID = 1L;

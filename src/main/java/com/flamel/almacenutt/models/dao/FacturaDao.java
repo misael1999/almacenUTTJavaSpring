@@ -13,18 +13,21 @@ import java.util.List;
 @Repository
 public interface FacturaDao extends JpaRepository<Factura, Long> {
 
-    @Query("select f from Factura f where f.status=1")
+    @Query("select f from Factura f join f.items i join i.producto where f.status = 1")
     Page<Factura> findAllFacturasActivas(Pageable pageable);
 
-    @Query("select f from Factura f  where f.status=0")
+    @Query("select f from Factura f join f.items i join i.producto where f.status=0")
     Page<Factura> findAllFacturasEntregadas(Pageable pageable);
 
     @Query("select f from Factura f where f.folio LIKE CONCAT('%',:termino,'%') or f.proveedor.nombre LIKE CONCAT('%',:termino,'%') ")
     List<Factura> findFacturaLikeTermino(@Param("termino") String termino);
 
-    @Query("select f from Factura f where f.documento is not null")
+    @Query("select f from Factura f join f.items i join i.producto where f.documento is not null")
     Page<Factura> listFacturasWithDocuments(Pageable pageable);
 
-    //    @Query("select f from Factura f join fetch f.items i join fetch i.producto where f.folio = ?1")
     Factura getFacturaByFolio(String folio);
+
+    @Query("select count(f.idFactura) from Factura f")
+    Long getTotalFacturas();
+
 }

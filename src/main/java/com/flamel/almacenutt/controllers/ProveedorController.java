@@ -2,13 +2,16 @@ package com.flamel.almacenutt.controllers;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.flamel.almacenutt.models.entity.Proveedor;
+import com.flamel.almacenutt.models.entity.Usuario;
 import com.flamel.almacenutt.models.service.ProveedorService;
+import com.flamel.almacenutt.models.service.UsuarioService;
 import com.flamel.almacenutt.util.CustomErrorType;
 import com.flamel.almacenutt.util.CustomResponseType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +24,9 @@ public class ProveedorController {
 
     @Autowired
     private ProveedorService proveedorService;
+
+    @Autowired
+    private UsuarioService usuarioService;
 
 
     // LISTA DE PROVEEDORES
@@ -48,7 +54,7 @@ public class ProveedorController {
 
     // AGREGAR UN NUEVO PROVEEDOR
     @RequestMapping(value = "/proveedores", method = RequestMethod.POST)
-    public ResponseEntity<?> createProveedor(@RequestBody Proveedor proveedor) {
+    public ResponseEntity<?> createProveedor(@RequestBody Proveedor proveedor, Authentication authentication) {
         if (proveedor.getNombre() == null || proveedor.getNombre().isEmpty()) {
             return new ResponseEntity<>
                     (new CustomErrorType("Nombre obligatorio",
@@ -67,6 +73,14 @@ public class ProveedorController {
                     HttpStatus.CONFLICT);
         }
 
+        Usuario usuario = usuarioService.findByNombreUsuario(authentication.getName());
+        if (usuario.getRole().equals("ROLE_USER")) {
+            return new ResponseEntity<>(new CustomErrorType("No tienes permisos para esta accion",
+                    "Accion denegada").getResponse(),
+                    HttpStatus.CONFLICT);
+        }
+
+        proveedor.setIdUsuario(usuario.getIdUsuario());
         proveedorService.saveProveedor(proveedor);
 
         return new ResponseEntity<>(new CustomResponseType("Se ha guardado el proveedor " + proveedor.getNombre(),
@@ -90,10 +104,10 @@ public class ProveedorController {
                 "Proveedores encontrados").getResponse(), HttpStatus.OK);
     }
 
-    // ELIMINAR PROVEEDOR CAMBIO DE STATUS
+    // ACTUALIZAR Y ELIMINAR PROVEEDOR (CAMBIO DE STATUS)
 
     @RequestMapping(value = "/proveedores", method = RequestMethod.PATCH)
-    public ResponseEntity<?> deleteProveedor(@RequestBody Proveedor proveedor) {
+    public ResponseEntity<?> updateProveedor(@RequestBody Proveedor proveedor, Authentication authentication) {
 
         if (proveedor.getIdProveedor() == null || proveedor.getIdProveedor() == 0) {
             return new ResponseEntity<>(new CustomErrorType("El id del proveeodor tiene que ser obligatorio",
@@ -101,6 +115,12 @@ public class ProveedorController {
                     HttpStatus.CONFLICT);
         }
 
+        Usuario usuario = usuarioService.findByNombreUsuario(authentication.getName());
+        if (usuario.getRole().equals("ROLE_USER")) {
+            return new ResponseEntity<>(new CustomErrorType("No tienes permisos para esta accion",
+                    "Accion denegada").getResponse(),
+                    HttpStatus.CONFLICT);
+        }
         proveedorService.saveProveedor(proveedor);
         if (!proveedor.getStatus()) {
             return new ResponseEntity<>(new CustomResponseType("Se ha eliminado el proveedor " + proveedor.getNombre(),
