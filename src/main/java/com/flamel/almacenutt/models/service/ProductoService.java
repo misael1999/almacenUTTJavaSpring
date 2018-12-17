@@ -10,7 +10,7 @@ public interface ProductoService {
 
      void saveProducto(Producto producto);
      Page<Producto> findAllProductos(Pageable pageable);
-     Producto getProductoByDescripcion(String descripcion);
+     Producto getProductoByClave(String clave);
      List<Producto> findAllProductosByDescripcionLike(String descripcion);
 
 }

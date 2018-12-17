@@ -1,6 +1,7 @@
 package com.flamel.almacenutt.controllers;
 
 import com.flamel.almacenutt.models.entity.*;
+import com.flamel.almacenutt.models.service.FacturaService;
 import com.flamel.almacenutt.models.service.ProductoService;
 import com.flamel.almacenutt.models.service.UsuarioService;
 import com.flamel.almacenutt.models.service.ValeSalidaService;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -25,6 +27,9 @@ public class ValeSalidaController {
 
     @Autowired
     private ProductoService productoService;
+
+    @Autowired
+    private FacturaService facturaService;
 
     @Autowired
     private UsuarioService usuarioService;
@@ -86,6 +91,19 @@ public class ValeSalidaController {
 
     @RequestMapping(value = "/vales", method = RequestMethod.POST)
     public ResponseEntity<?> crearValeSalida(@RequestBody() ValeSalida vale, Authentication authentication) {
+
+        Usuario usuario = usuarioService.findByNombreUsuario(authentication.getName());
+        boolean privilegio = false;
+        for (PrivilegioUsuario privilegioUsuario: usuario.getPrivilegios()) {
+            if (privilegioUsuario.getPrivilegio().getNombre().equals("generar vales")) {
+                privilegio = true;
+                break;
+            }
+        }
+        if (!privilegio) {
+            return new ResponseEntity<>(new CustomErrorType("No tienes permisos para esta accion", "No has ingresado ni un producto").getResponse(), HttpStatus.CONFLICT);
+        }
+
         ValeSalida valeExist = valeSalidaService.findValeSalidaByNumeroRequisicion(vale.getNumeroRequisicion());
         if (valeExist != null) {
             return new ResponseEntity<>(new CustomErrorType("El vale de salida de la requisición número " + vale.getNumeroRequisicion() + " ya existe",
@@ -102,22 +120,33 @@ public class ValeSalidaController {
                     HttpStatus.CONFLICT);
         }
         List<ValeProducto> listValeProductos = vale.getItems();
+        Factura factura = vale.getFactura();
+        ArrayList<FacturaProducto> listProductsFactura = new ArrayList<>(factura.getItems());
+
         for (ValeProducto salidaProducto : listValeProductos) {
             Producto producto = salidaProducto.getProducto();
-            // VALIDAMOS QUE LA CANTIDAD DEL PRODUCTO INGRESADA EN LA FACTURA SEA MAYOR O IGUAL A LA
-            // CANTIDAD ENTREGADA
             if (salidaProducto.getCantidadEntregada() > producto.getCantidad()) {
                 return new ResponseEntity<>(new CustomErrorType("No hay cantidad de suficiente del producto " + producto.getDescripcion(),
                         "Cantidad insuficiente").getResponse(),
                         HttpStatus.CONFLICT);
             }
+
+            producto.setCantidad(producto.getCantidad() - salidaProducto.getCantidadEntregada());
+            listProductsFactura.forEach(pFactura -> {
+                if (pFactura.getProducto().getClave().equals(salidaProducto.getProducto().getClave())) {
+                    pFactura.setCantidad(pFactura.getCantidad() - salidaProducto.getCantidadEntregada());
+                    facturaService.saveFactura(factura);
+                    return;
+                }
+            });
+
         }
-        Usuario usuario = usuarioService.findByNombreUsuario(authentication.getName());
-        if (usuario.getRole().equals("ROLE_USER")) {
-            return new ResponseEntity<>(new CustomErrorType("No tienes permisos para esta accion",
-                    "Accion denegada").getResponse(),
-                    HttpStatus.CONFLICT);
-        }
+
+
+        factura.setStatus(false);
+        facturaService.saveFactura(factura);
+
+
         vale.setIdUsuario(usuario.getIdUsuario());
         valeSalidaService.saveValeSalida(vale);
 

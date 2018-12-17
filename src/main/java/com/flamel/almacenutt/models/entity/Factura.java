@@ -20,9 +20,9 @@ public class Factura implements Serializable {
     @Column(name = "id_factura")
     private Long idFactura;
     @Column(name = "fecha_expedicion")
-    @Temporal(TemporalType.DATE)
-    @DateTimeFormat(pattern="yyyy-MM-dd")
-    private Date fechaExpedicion;
+//    @Temporal(TemporalType.DATE)
+//    @DateTimeFormat(pattern="yyyy-MM-dd")
+    private String fechaExpedicion;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_proveedor")
@@ -73,11 +73,11 @@ public class Factura implements Serializable {
         this.idFactura = idFactura;
     }
 
-    public Date getFechaExpedicion() {
+    public String getFechaExpedicion() {
         return fechaExpedicion;
     }
 
-    public void setFechaExpedicion(Date fechaExpedicion) {
+    public void setFechaExpedicion(String fechaExpedicion) {
         this.fechaExpedicion = fechaExpedicion;
     }
 

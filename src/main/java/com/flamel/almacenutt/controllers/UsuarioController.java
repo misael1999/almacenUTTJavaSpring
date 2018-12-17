@@ -81,6 +81,15 @@ public class UsuarioController {
 
     }
 
+    // OBTENER USUARIO POR NOMBRE_USUARIO
+    @RequestMapping(value = "/usuarios/{nombreUsuario}", method = RequestMethod.GET)
+    public ResponseEntity<?> getUsuarioByNombreUsuario(@PathVariable("nombreUsuario") String nombreUsuario) {
+        return new ResponseEntity<>(new CustomResponseType("Usuario", "usuario",
+                    usuarioService.findByNombreUsuario(nombreUsuario), "").getResponse(),
+                    HttpStatus.OK);
+    }
+
+
 
     @RequestMapping(value = "/usuarios/password", method = RequestMethod.PATCH)
     public ResponseEntity<?> cambiarPassword(@RequestBody ChangePassword changePassword, Authentication authentication) {
@@ -121,7 +130,7 @@ public class UsuarioController {
         return new ResponseEntity<>(new CustomResponseType("Area creada correctamente", "", "", "Area creada").getResponse(), HttpStatus.CREATED);
     }
 
-    // ACTUALIZAR USUARIO
+    // ACTUALIZAR AREA
     @RequestMapping(value = "/areas", method = RequestMethod.PATCH)
     public ResponseEntity<?> updateAreas(@RequestBody() Area area) {
 
@@ -138,6 +147,17 @@ public class UsuarioController {
                 "Se actualizo la area").getResponse(), HttpStatus.OK);
 
     }
+
+    // OBTENER PRIVILEGIOS DISPONIBLES
+    @RequestMapping(value = "/privilegios", method = RequestMethod.GET)
+    public ResponseEntity<?> getPrivilegios() {
+        return new ResponseEntity<>(new CustomResponseType("Privilegios", "privilegios",
+                usuarioService.getPrivilegios(), "").getResponse(),
+                HttpStatus.OK);
+    }
+
+
+
 
 
 

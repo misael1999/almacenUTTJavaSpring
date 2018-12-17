@@ -1,6 +1,7 @@
 package com.flamel.almacenutt.models.service;
 
 import com.flamel.almacenutt.models.entity.Area;
+import com.flamel.almacenutt.models.entity.Privilegio;
 import com.flamel.almacenutt.models.entity.Usuario;
 
 import java.util.List;
@@ -17,5 +18,7 @@ public interface UsuarioService {
     void saveArea(Area area);
     Area findAreaByid(Long idArea);
     Area findAreaByNombre(String nombre);
+
+    List<Privilegio> getPrivilegios();
 
 }

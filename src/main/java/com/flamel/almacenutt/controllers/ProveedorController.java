@@ -1,6 +1,7 @@
 package com.flamel.almacenutt.controllers;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.flamel.almacenutt.models.entity.PrivilegioUsuario;
 import com.flamel.almacenutt.models.entity.Proveedor;
 import com.flamel.almacenutt.models.entity.Usuario;
 import com.flamel.almacenutt.models.service.ProveedorService;
@@ -55,6 +56,20 @@ public class ProveedorController {
     // AGREGAR UN NUEVO PROVEEDOR
     @RequestMapping(value = "/proveedores", method = RequestMethod.POST)
     public ResponseEntity<?> createProveedor(@RequestBody Proveedor proveedor, Authentication authentication) {
+
+        Usuario usuario = usuarioService.findByNombreUsuario(authentication.getName());
+        boolean privilegio = false;
+        for (PrivilegioUsuario privilegioUsuario: usuario.getPrivilegios()) {
+            if (privilegioUsuario.getPrivilegio().getNombre().equals("agregar proveedor")) {
+                privilegio = true;
+                break;
+            }
+        }
+        if (!privilegio) {
+            return new ResponseEntity<>(new CustomErrorType("No tienes permisos para esta accion", "No has ingresado ni un producto").getResponse(), HttpStatus.CONFLICT);
+        }
+
+
         if (proveedor.getNombre() == null || proveedor.getNombre().isEmpty()) {
             return new ResponseEntity<>
                     (new CustomErrorType("Nombre obligatorio",
@@ -73,12 +88,6 @@ public class ProveedorController {
                     HttpStatus.CONFLICT);
         }
 
-        Usuario usuario = usuarioService.findByNombreUsuario(authentication.getName());
-        if (usuario.getRole().equals("ROLE_USER")) {
-            return new ResponseEntity<>(new CustomErrorType("No tienes permisos para esta accion",
-                    "Accion denegada").getResponse(),
-                    HttpStatus.CONFLICT);
-        }
 
         proveedor.setIdUsuario(usuario.getIdUsuario());
         proveedorService.saveProveedor(proveedor);
@@ -88,6 +97,19 @@ public class ProveedorController {
                 "",
                 "Proveedor guardado").getResponse(), HttpStatus.CREATED);
     }
+
+    @RequestMapping(value = "/proveedores/todo/{nombre}", method = RequestMethod.GET)
+    public ResponseEntity<?> getProveedorByNombreTypehead(@PathVariable("nombre") String nombre) {
+
+        if (nombre == null | nombre.isEmpty()) {
+            return new ResponseEntity<>(new CustomErrorType("Debe de ingresar el nombre", "El nombre es obligatorio").getResponse(), HttpStatus.CONFLICT);
+        }
+
+        return new ResponseEntity<>(
+                proveedorService.findProveedorByNombreTypehead(nombre), HttpStatus.OK);
+    }
+
+
 
     // BUSCAR TODOS LOS PROVEEDORES QUE COINCIDAN CON EL NOMBRE
 

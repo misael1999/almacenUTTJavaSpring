@@ -1,8 +1,10 @@
 package com.flamel.almacenutt.models.service;
 
 import com.flamel.almacenutt.models.dao.AreaDao;
+import com.flamel.almacenutt.models.dao.PrivilegioDao;
 import com.flamel.almacenutt.models.dao.UsuarioDao;
 import com.flamel.almacenutt.models.entity.Area;
+import com.flamel.almacenutt.models.entity.Privilegio;
 import com.flamel.almacenutt.models.entity.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,9 @@ public class UsuarioServiceImpl implements UsuarioService {
     UsuarioDao usuarioDao;
     @Autowired
     AreaDao areaDao;
+
+    @Autowired
+    PrivilegioDao privilegioDao;
 
     @Override
     public List<Usuario> findAllUsuarios() {
@@ -60,6 +65,11 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     public Area findAreaByNombre(String nombre) {
         return areaDao.findAreaByNombre(nombre);
+    }
+
+    @Override
+    public List<Privilegio> getPrivilegios() {
+        return privilegioDao.findAll();
     }
 
 

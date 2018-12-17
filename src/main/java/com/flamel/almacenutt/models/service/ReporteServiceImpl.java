@@ -3,6 +3,8 @@ package com.flamel.almacenutt.models.service;
 import com.flamel.almacenutt.models.dao.ProductoDao;
 import com.flamel.almacenutt.models.dao.ValeSalidaDao;
 import com.flamel.almacenutt.models.entity.Producto;
+import com.flamel.almacenutt.models.entity.Proveedor;
+import com.flamel.almacenutt.models.model.ReporteGastoArea;
 import com.flamel.almacenutt.models.model.ReporteProducto;
 import com.flamel.almacenutt.models.model.ReporteProductosValeSalida;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,5 +31,20 @@ public class ReporteServiceImpl implements ReporteService {
     @Override
     public List<ReporteProductosValeSalida> getProductosByValeSalidaNumeroRequisicion(Long numeroRequisicion) {
         return valeSalidaDao.getProductosByValeSalidaNumeroRequisicion(numeroRequisicion);
+    }
+
+    @Override
+    public List<Producto> getProductosByProveedor(Long idProveedor) {
+        return productoDao.getProductosByProveedor(idProveedor);
+    }
+
+    @Override
+    public List<ReporteGastoArea> getAreasGastos(String fecha1, String fecha2) {
+        return valeSalidaDao.getAreasGastos(fecha1, fecha2);
+    }
+
+    @Override
+    public List<ReporteProducto> getProductosByArea(Long idArea, String fecha1, String fecha2) {
+        return valeSalidaDao.getProductosByArea(idArea, fecha1, fecha2);
     }
 }

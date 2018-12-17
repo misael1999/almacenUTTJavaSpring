@@ -43,5 +43,10 @@ public class ProveedorServiceImpl implements ProveedorService{
         return proveedorDao.findAllProveedores(pageable);
     }
 
+    @Override
+    public List<Proveedor> findProveedorByNombreTypehead(String nombre) {
+        return proveedorDao.findProveedorByNombreTypehead(nombre);
+    }
+
 
 }

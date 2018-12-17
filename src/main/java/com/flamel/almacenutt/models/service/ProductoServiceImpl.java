@@ -28,8 +28,8 @@ public class ProductoServiceImpl implements ProductoService {
 
 
     @Override
-    public Producto getProductoByDescripcion(String descripcion) {
-        return productoDao.getProductoByDescripcion(descripcion);
+    public Producto getProductoByClave(String clave) {
+        return productoDao.getProductoByClave(clave);
     }
 
     @Override

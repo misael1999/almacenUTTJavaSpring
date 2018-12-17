@@ -25,7 +25,7 @@ import java.util.Date;
 public class JWTServiceImpl implements JWTService {
 
     public static final SecretKey SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    public static final long EXPIRATION_DATE = 3600000;
+    public static final long EXPIRATION_DATE = 3600000 * 24;
     public static final String TOKEN_PREFIX = "Bearer ";
     public static final String HEADER_STRING = "Authorization";
 

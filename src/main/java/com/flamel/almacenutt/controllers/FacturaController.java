@@ -1,10 +1,10 @@
 package com.flamel.almacenutt.controllers;
 
-import com.flamel.almacenutt.models.entity.Factura;
-import com.flamel.almacenutt.models.entity.FacturaProducto;
-import com.flamel.almacenutt.models.entity.Producto;
+import com.flamel.almacenutt.models.entity.*;
 import com.flamel.almacenutt.models.service.FacturaService;
 import com.flamel.almacenutt.models.service.ProductoService;
+import com.flamel.almacenutt.models.service.ProveedorService;
+import com.flamel.almacenutt.models.service.UsuarioService;
 import com.flamel.almacenutt.util.CustomErrorType;
 import com.flamel.almacenutt.util.CustomResponseType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,6 +37,12 @@ public class FacturaController {
 
     @Autowired
     private ProductoService productoService;
+
+    @Autowired
+    private UsuarioService usuarioService;
+
+    @Autowired
+    private ProveedorService proveedorService;
 
     @RequestMapping(value = "/facturas/page/{page}", method = RequestMethod.GET)
     public ResponseEntity<?> getFacturas(@PathVariable("page") Integer page,
@@ -83,7 +90,26 @@ public class FacturaController {
     // AGREGAR FACTURA
 
     @RequestMapping(value = "/facturas", method = RequestMethod.POST)
-    public ResponseEntity<?> crearFactura(@RequestBody() Factura factura) {
+    public ResponseEntity<?> crearFactura(@RequestBody() Factura factura, Authentication authentication) {
+
+        Proveedor proveedor = proveedorService.getProveedorByNombre(factura.getProveedor().getNombre());
+        if (proveedor == null) {
+            return new ResponseEntity<>(new CustomErrorType("El proveedor no existe", "No existe el proveedor").getResponse(), HttpStatus.CONFLICT);
+        }
+
+        factura.setProveedor(proveedor);
+
+        Usuario usuario = usuarioService.findByNombreUsuario(authentication.getName());
+        Boolean privilegio = false;
+        for (PrivilegioUsuario privilegioUsuario: usuario.getPrivilegios()) {
+            if (privilegioUsuario.getPrivilegio().getNombre().equals("ingresar facturas")) {
+                privilegio = true;
+                continue;
+            }
+        }
+        if (!privilegio) {
+            return new ResponseEntity<>(new CustomErrorType("No tienes permisos para esta accion", "No has ingresado ni un producto").getResponse(), HttpStatus.CONFLICT);
+        }
 
         if (factura.getFolio() == null || factura.getFolio().isEmpty() || factura.getFechaExpedicion() == null || factura.getProveedor().getIdProveedor() == null) {
             return new ResponseEntity<>(new CustomErrorType("Ingresa los campos obligatorios", "No has ingresado los campos obligatorios").getResponse(), HttpStatus.CONFLICT);
@@ -100,13 +126,12 @@ public class FacturaController {
             return new ResponseEntity<>(new CustomErrorType("Ingresa al menos un producto", "No has ingresado ni un producto").getResponse(), HttpStatus.CONFLICT);
         }
 
-        List<FacturaProducto> facturaItems = new ArrayList<>();
-        facturaItems.addAll(factura.getItems());
+        List<FacturaProducto> facturaItems = new ArrayList<>(factura.getItems());
         factura.getItems().clear();
 
         for (int i = 0; i < facturaItems.size(); i++) {
             Producto producto = facturaItems.get(i).getProducto();
-            Producto productoAux = productoService.getProductoByDescripcion(producto.getDescripcion().toLowerCase());
+            Producto productoAux = productoService.getProductoByClave(producto.getClave().toLowerCase());
             FacturaProducto facturaProducto = new FacturaProducto();
             // si el producto no existe
             if (productoAux == null) {
@@ -125,11 +150,90 @@ public class FacturaController {
                 factura.addItemFactura(facturaProducto);
             }
         }
+        factura.setIdUsuario(usuario.getIdUsuario());
         facturaService.saveFactura(factura);
 
         return new ResponseEntity<>(new CustomResponseType("Ha sido registrada la factura  con el folio " + factura.getFolio(),
                 "folio", factura.getFolio(), "Factura registrada").getResponse(), HttpStatus.OK);
 
+    }
+
+    // EDITAR FACTURA
+    @RequestMapping(value = "/facturas", method = RequestMethod.PATCH)
+    public ResponseEntity<?> actualizarFactura(@RequestBody() Factura factura, Authentication authentication) {
+        Proveedor proveedor = proveedorService.getProveedorByNombre(factura.getProveedor().getNombre());
+        Usuario usuario = usuarioService.findByNombreUsuario(authentication.getName());
+        if (proveedor == null) {
+            return new ResponseEntity<>(new CustomErrorType("El proveedor no existe", "No existe el proveedor").getResponse(), HttpStatus.CONFLICT);
+        }
+
+        // datos de la factura anterior para recuperar la cantidad anterior
+        Factura facturaAux = facturaService.getFacturaByFolio(factura.getFolio());
+        ArrayList<FacturaProducto> listProductos = new ArrayList<>(factura.getItems());
+        ArrayList<FacturaProducto> listProductosAux = new ArrayList<>(facturaAux.getItems());
+        factura.getItems().clear();
+        // AGREGAR EL NUEVO PRODUCTO SI NO EXISTE
+        listProductos.forEach(productoFactura -> {
+            // VARIBLES PARA VERIFICAR SI EXISTE EL PRODUCTO
+            String clave = productoFactura.getProducto().getClave();
+            FacturaProducto facturaProducto = new FacturaProducto();
+            Producto productoAux = productoService.getProductoByClave(clave);
+            // si no existe el producto
+            if (productoAux == null) {
+                Producto producto = productoFactura.getProducto();
+                producto.setIdProveedor(proveedor.getIdProveedor());
+                producto.setIdUsuario(usuario.getIdUsuario());
+                productoService.saveProducto(producto);
+                facturaProducto.setProducto(producto);
+                facturaProducto.setCantidad(producto.getCantidad());
+                factura.addItemFactura(facturaProducto);
+            } else {
+                // SI EL PRODUCTO EXISTE LO ACTUALIZAMOS
+                boolean encontrado = false;
+                for (int i = 0; i < listProductosAux.size(); i++) {
+                    if (productoAux.getClave() == listProductosAux.get(i).getProducto().getClave()) {
+                        int nuevaCantidad = 0;
+                        if (productoAux.getCantidad() < listProductosAux.get(i).getCantidad()) {
+                            nuevaCantidad = listProductosAux.get(i).getCantidad() - productoAux.getCantidad();
+                        } else {
+                            nuevaCantidad = productoAux.getCantidad() - listProductosAux.get(i).getCantidad();
+                        }
+                        productoAux.setDescripcion(productoFactura.getProducto().getDescripcion());
+                        productoAux.setPrecio(productoFactura.getProducto().getPrecio());
+                        productoAux.setUnidad(productoFactura.getProducto().getUnidad());
+                        productoAux.setCantidad(nuevaCantidad + productoFactura.getCantidad());
+                        productoAux.setIdProveedor(proveedor.getIdProveedor());
+                        productoService.saveProducto(productoAux);
+                        facturaProducto.setProducto(productoAux);
+                        facturaProducto.setCantidad(productoFactura.getCantidad());
+                        facturaProducto.setIdFacturaProducto(facturaProducto.getIdFacturaProducto());
+                        factura.addItemFactura(facturaProducto);
+                        encontrado = true;
+                        listProductosAux.remove(i);
+                    }
+                }
+                if (!encontrado) {
+                    productoAux.setCantidad(productoAux.getCantidad() + productoFactura.getCantidad());
+                    productoAux.setIdProveedor(proveedor.getIdProveedor());
+                    productoService.saveProducto(productoAux);
+                    facturaProducto.setProducto(productoAux);
+                    facturaProducto.setCantidad(productoFactura.getCantidad());
+                    facturaProducto.setIdFacturaProducto(productoFactura.getIdFacturaProducto());
+                    factura.addItemFactura(facturaProducto);
+                }
+
+            }
+        });
+        // LE RESTO CANTIDAD A LOS PRODUCTOS QUE FUERON ELIMINADOS DE LA FACTURA
+        listProductosAux.forEach(productoBorrar -> {
+            Producto productoDelete = productoBorrar.getProducto();
+            productoDelete.setCantidad(productoDelete.getCantidad() - productoBorrar.getCantidad());
+            productoService.saveProducto(productoDelete);
+        });
+        factura.setProveedor(proveedor);
+        facturaService.saveFactura(factura);
+        return new ResponseEntity<>(new CustomResponseType("Se ha actulizo la factura con el folio" + factura.getFolio(),
+                "factura", "", "").getResponse(), HttpStatus.OK);
     }
 
     // UPLOAD FACTURA
