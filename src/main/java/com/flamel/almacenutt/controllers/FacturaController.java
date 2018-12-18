@@ -208,6 +208,7 @@ public class FacturaController {
                         productoAux.setCantidad(nuevaCantidad + productoFactura.getCantidad());
                         productoAux.setIdProveedor(proveedor.getIdProveedor());
                         productoService.saveProducto(productoAux);
+                        facturaProducto.setIdFacturaProducto(listProductosAux.get(i).getIdFacturaProducto());
                         facturaProducto.setProducto(productoAux);
                         facturaProducto.setCantidad(productoFactura.getCantidad());
                         facturaProducto.setCantidadRestante(productoFactura.getCantidad());

@@ -29,8 +29,8 @@ public class ReporteServiceImpl implements ReporteService {
     }
 
     @Override
-    public List<ReporteProductosValeSalida> getProductosByValeSalidaNumeroRequisicion(Long numeroRequisicion) {
-        return valeSalidaDao.getProductosByValeSalidaNumeroRequisicion(numeroRequisicion);
+    public List<ReporteProductosValeSalida> getProductosByValeSalidaId(Long idVale) {
+        return valeSalidaDao.getProductosByValeSalidaId(idVale);
     }
 
     @Override

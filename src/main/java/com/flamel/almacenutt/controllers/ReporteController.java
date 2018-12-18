@@ -112,7 +112,7 @@ public class ReporteController {
         params.put("area", vale.getArea().getNombre().toUpperCase());
         params.put("responsable", vale.getArea().getResponsable());
         params.put("fechaEntrega", String.valueOf(vale.getFechaEntrega()));
-        List<ReporteProductosValeSalida> valeSalida = reporteService.getProductosByValeSalidaNumeroRequisicion(vale.getNumeroRequisicion());
+        List<ReporteProductosValeSalida> valeSalida = reporteService.getProductosByValeSalidaId(vale.getIdValeSalida());
         JRBeanCollectionDataSource ds = new JRBeanCollectionDataSource(valeSalida);
 
         reporte = jasperReportService.generatePDFReport("vale_salida", params, ds);
@@ -138,6 +138,7 @@ public class ReporteController {
         params.put("fecha2", fecha2);
         params.put("area", area.getNombre());
         List<ReporteProducto> productosArea = reporteService.getProductosByArea(idArea, fecha1, fecha2);
+        System.out.println(productosArea.size());
         for (ReporteProducto producto: productosArea) {
             total += producto.getPrecio() * producto.getCantidad();
         }

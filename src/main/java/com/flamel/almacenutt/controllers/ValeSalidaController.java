@@ -8,6 +8,7 @@ import com.flamel.almacenutt.models.service.ValeSalidaService;
 import com.flamel.almacenutt.util.CustomErrorType;
 import com.flamel.almacenutt.util.CustomResponseType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -48,16 +49,19 @@ public class ValeSalidaController {
             sort = Sort.by("fechaEntrega").ascending();
         }
 
-        if (entregadas != null) {
-            return new ResponseEntity<>(new CustomResponseType("Lista de vales entregadas",
-                    "vales",
-                    valeSalidaService.listValeSalidaEntregadas(PageRequest.of(page, 15, sort)), "").getResponse(),
-                    HttpStatus.OK);
-        }
+//        if (entregadas != null) {
+//            return new ResponseEntity<>(new CustomResponseType("Lista de vales entregadas",
+//                    "vales",
+//                    valeSalidaService.listValeSalidaEntregadas(PageRequest.of(page, 15, sort)), "").getResponse(),
+//                    HttpStatus.OK);
+//        }
+
+        System.out.println();
+        Page<ValeSalida> valeSalidas = valeSalidaService.listValeSalidaActivas(PageRequest.of(page, 15, sort));
+        System.out.println(valeSalidas.getTotalElements());
 
         return new ResponseEntity<>(new CustomResponseType("Lista de vales activas",
-                "vales",
-                valeSalidaService.listValeSalidaActivas(PageRequest.of(page, 15, sort)), "").getResponse(),
+                "vales", valeSalidas, "").getResponse(),
                 HttpStatus.OK);
     }
 
@@ -110,7 +114,7 @@ public class ValeSalidaController {
 //                    "El vale de salida ya existe").getResponse(), HttpStatus.CONFLICT);
 //        }
 
-        if ( vale.getArea() == null || vale.getFactura() == null || vale.getNumeroRequisicion() == null) {
+        if ( vale.getArea() == null ||  vale.getNumeroRequisicion() == null || vale.getFactura() == null) {
             return new ResponseEntity<>(new CustomErrorType("Ingresa los campos obligatorios", "No has ingresado todos los campos").getResponse(),
                     HttpStatus.CONFLICT);
         }
@@ -123,32 +127,21 @@ public class ValeSalidaController {
         List<ValeProducto> listValeProductos = vale.getItems();
 
         Factura factura = vale.getFactura();
+        // productos de la factura
         ArrayList<FacturaProducto> listProductsFactura = new ArrayList<>(factura.getItems());
 
+        // VERFICAMOS SI TIENE LA CANTIDAD NECESARIA PARA SACAR LOS PRODUCTOS
         for (ValeProducto salidaProducto : listValeProductos) {
-            Producto producto = salidaProducto.getProducto();
-            if (salidaProducto.getCantidadEntregada() > producto.getCantidad()) {
-                return new ResponseEntity<>(new CustomErrorType("No hay cantidad de suficiente del producto " + producto.getDescripcion(),
+            FacturaProducto productoFacturaProducto = salidaProducto.getFacturaProducto();
+            if (salidaProducto.getCantidadEntregada() > productoFacturaProducto.getCantidadRestante()) {
+                return new ResponseEntity<>(new CustomErrorType("No hay cantidad de suficiente del producto " + salidaProducto.getFacturaProducto().getProducto().getDescripcion(),
                         "Cantidad insuficiente").getResponse(),
                         HttpStatus.CONFLICT);
             }
-
-            producto.setCantidad(producto.getCantidad() - salidaProducto.getCantidadEntregada());
-            listProductsFactura.forEach(pFactura -> {
-                if (pFactura.getProducto().getClave().equals(salidaProducto.getProducto().getClave())) {
-                    pFactura.setCantidadRestante(pFactura.getCantidad() - salidaProducto.getCantidadEntregada());
-                    facturaService.saveFactura(factura);
-                    return;
-                }
-            });
-
+        // TERMINAMOS LA VERIFICACION ==============================
+            productoFacturaProducto.setCantidadRestante(productoFacturaProducto.getCantidadRestante() - salidaProducto.getCantidadEntregada());
+            valeSalidaService.updateFacturaProducto(productoFacturaProducto);
         }
-
-
-        factura.setStatus(false);
-        facturaService.saveFactura(factura);
-
-
         vale.setIdUsuario(usuario.getIdUsuario());
         valeSalidaService.saveValeSalida(vale);
 

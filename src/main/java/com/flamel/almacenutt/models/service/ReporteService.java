@@ -13,7 +13,7 @@ import java.util.List;
 public interface ReporteService {
 
     List<ReporteProducto> findAllProductosByDate(Integer mes, Integer ano);
-    List<ReporteProductosValeSalida> getProductosByValeSalidaNumeroRequisicion(Long numeroRequisicion);
+    List<ReporteProductosValeSalida> getProductosByValeSalidaId(Long numeroRequisicion);
     List<Producto> getProductosByProveedor(Long idProveedor);
     List<ReporteGastoArea> getAreasGastos(String fecha1, String fecha2);
     List<ReporteProducto> getProductosByArea(Long idArea, String fecha1, String fecha2);

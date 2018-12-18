@@ -20,8 +20,8 @@ public class FacturaProducto implements Serializable {
     @JoinColumn(name="id_producto")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Producto producto;
-
     private Integer cantidad;
+
     @Column(name = "cantidad_restante")
     private Integer cantidadRestante;
 

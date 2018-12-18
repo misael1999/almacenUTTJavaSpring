@@ -33,7 +33,8 @@ public interface ProductoDao extends JpaRepository<Producto,Long> {
     @Query(nativeQuery = true, value = "select p.clave, p.descripcion, sp.cantidad_entregada as cantidad, p.unidad_medida, p.precio, pr.nombre as proveedor " +
             "from vales_salidas v " +
             "inner join salidas_productos sp on v.id_vale_salida = sp.id_vale_salida " +
-            "inner join productos p on p.id_producto = sp.id_producto " +
+            "inner join facturas_productos fp on fp.id_factura_producto = sp.id_factura_producto " +
+            "inner join productos p on p.id_producto = fp.id_producto " +
             "inner join proveedores pr on pr.id_proveedor = p.id_proveedor " +
             "where v.id_area = ?1 and v.fecha_entrega between ?2 and ?3 ")
     List<ReporteProducto> getProductosByArea(Long idArea, String fecha1, String fecha2);

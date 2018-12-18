@@ -1,7 +1,9 @@
 package com.flamel.almacenutt.models.service;
 
+import com.flamel.almacenutt.models.dao.FacturaProductoDao;
 import com.flamel.almacenutt.models.dao.ValeSalidaDao;
 import com.flamel.almacenutt.models.entity.Factura;
+import com.flamel.almacenutt.models.entity.FacturaProducto;
 import com.flamel.almacenutt.models.entity.ValeSalida;
 import com.flamel.almacenutt.models.model.ValesByArea;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,9 @@ public class ValeSalidaServiceImpl implements ValeSalidaService {
     @Autowired
     ValeSalidaDao valeSalidaDao;
 
+    @Autowired
+    FacturaProductoDao facturaProductoDao;
+
     @Override
     public void saveValeSalida(ValeSalida valeSalida) {
         valeSalidaDao.save(valeSalida);
@@ -26,11 +31,6 @@ public class ValeSalidaServiceImpl implements ValeSalidaService {
     @Override
     public Page<ValeSalida> listValeSalidaActivas(Pageable pageable) {
         return valeSalidaDao.listValeSalidaActivas(pageable);
-    }
-
-    @Override
-    public Page<ValeSalida> listValeSalidaEntregadas(Pageable pageable) {
-        return valeSalidaDao.listValeSalidaEntregadas(pageable);
     }
 
     @Override
@@ -56,6 +56,11 @@ public class ValeSalidaServiceImpl implements ValeSalidaService {
     @Override
     public ValeSalida getValeSalidaById(Long idVale) {
         return valeSalidaDao.findById(idVale).orElse(null);
+    }
+
+    @Override
+    public void updateFacturaProducto(FacturaProducto facturaProducto) {
+        facturaProductoDao.save(facturaProducto);
     }
 
 

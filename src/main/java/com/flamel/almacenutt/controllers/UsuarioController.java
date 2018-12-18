@@ -62,12 +62,14 @@ public class UsuarioController {
         }
 
         if (usuario.getRole().equals("ROLE_ADMIN")) {
-            PrivilegioUsuario privilegioUsuario = new PrivilegioUsuario();
+            System.out.println("entro");
+            PrivilegioUsuario privilegioUsuario = null;
             List<Privilegio> privilegios = usuarioService.getPrivilegios();
-            privilegios.forEach(privilegio -> {
+            for (Privilegio privilegio : privilegios) {
+                privilegioUsuario = new PrivilegioUsuario();
                 privilegioUsuario.setPrivilegio(privilegio);
                 usuario.addPrivilegio(privilegioUsuario);
-            });
+            }
         }
 
         usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));

@@ -16,15 +16,15 @@ import java.util.List;
 @Repository
 public interface ValeSalidaDao extends JpaRepository<ValeSalida, Long> {
 
-    @Query("select v from ValeSalida v join v.items i join i.producto where v.status = 1")
+    @Query("select v from ValeSalida v  where v.status = 1")
     Page<ValeSalida> listValeSalidaActivas(Pageable pageable);
 
-    @Query("select v from ValeSalida v join v.items i join i.producto where v.status = 0")
-    Page<ValeSalida> listValeSalidaEntregadas(Pageable pageable);
+//    @Query("select v from ValeSalida v  where v.status = 0")
+//    Page<ValeSalida> listValeSalidaEntregadas(Pageable pageable);
 
     ValeSalida findValeSalidaByNumeroRequisicion(Long numeroRequisicion);
 
-    @Query("select v from ValeSalida v join v.items i join i.producto where v.area.idArea = ?1")
+    @Query("select v from ValeSalida v where v.area.idArea = ?1")
     List<ValeSalida> findValeSalidaByIdArea(Long idArea);
 
     @Query(nativeQuery = true, value = "SELECT a.nombre as area, count(v.id_area) as total from areas a " +
@@ -39,8 +39,9 @@ public interface ValeSalidaDao extends JpaRepository<ValeSalida, Long> {
     @Query(nativeQuery = true, value = "select sp.cantidad_entregada as cantidadEntregada," +
             "sp.cantidad_solicitada as cantidadSolicitada, sp.unidad_medida as unidadMedida, p.descripcion " +
             "from vales_salidas v inner join salidas_productos sp on v.id_vale_salida = sp.id_vale_salida " +
-            "inner join productos p on p.id_producto = sp.id_producto and v.numero_requisicion = ?1")
-    List<ReporteProductosValeSalida> getProductosByValeSalidaNumeroRequisicion(Long numeroRequisicion);
+            "inner join facturas_productos fp on fp.id_factura_producto = sp.id_factura_producto " +
+            "inner join productos p on p.id_producto = fp.id_producto and v.id_vale_salida = ?1")
+    List<ReporteProductosValeSalida> getProductosByValeSalidaId(Long idVale);
 
     @Query("select v from ValeSalida v where v.numeroRequisicion LIKE CONCAT('%',:termino,'%') or v.area.nombre LIKE CONCAT('%',:termino,'%') ")
     List<ValeSalida> getValesByTerminoLike(@Param("termino") String termino);
@@ -50,7 +51,8 @@ public interface ValeSalidaDao extends JpaRepository<ValeSalida, Long> {
             "inner join vales_salidas v on a.id_area = v.id_area " +
             "left join salidas_productos sp on v.id_vale_salida = sp.id_vale_salida " +
             "and v.fecha_entrega between ?1 and ?2 " +
-            "left join productos p on p.id_producto = sp.id_producto " +
+            "inner join facturas_productos fp on fp.id_factura_producto = sp.id_factura_producto " +
+            "left join productos p on p.id_producto = fp.id_producto " +
             "group by a.id_area")
     List<ReporteGastoArea> getAreasGastos(String fecha1, String fecha2);
 
