@@ -9,6 +9,6 @@ public interface ReporteProducto {
     String getProveedor();
     Integer getCantidad();
     Double getPrecio();
-    String getUnidad();
+    String getUnidadMedida();
 
 }

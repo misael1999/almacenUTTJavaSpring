@@ -61,11 +61,11 @@ public class ValeSalidaController {
                 HttpStatus.OK);
     }
 
-    // OBTENER VALE POR NUMERO DE REQUISION
-    @RequestMapping(value = "/vales/requisicion/{numeroRequision}", method = RequestMethod.GET)
-    public ResponseEntity<?> getValeByNumeroRequisicion(@PathVariable("numeroRequision") Long numeroRequision) {
+    // OBTENER VALE POR ID DE VALE
+    @RequestMapping(value = "/vales/id/{idVale}", method = RequestMethod.GET)
+    public ResponseEntity<?> getValeByNumeroRequisicion(@PathVariable("idVale") Long idVale) {
         return new ResponseEntity<>(new CustomResponseType("Vale de salida", "vale",
-                valeSalidaService.getValeSalidaByNumeroRequisicion(numeroRequision), "").getResponse(),
+                valeSalidaService.getValeSalidaById(idVale), "").getResponse(),
                 HttpStatus.OK);
     }
 
@@ -95,7 +95,7 @@ public class ValeSalidaController {
         Usuario usuario = usuarioService.findByNombreUsuario(authentication.getName());
         boolean privilegio = false;
         for (PrivilegioUsuario privilegioUsuario: usuario.getPrivilegios()) {
-            if (privilegioUsuario.getPrivilegio().getNombre().equals("generar vales")) {
+            if (privilegioUsuario.getPrivilegio().getNombre().equals("generar vales de salidas")) {
                 privilegio = true;
                 break;
             }
@@ -104,11 +104,11 @@ public class ValeSalidaController {
             return new ResponseEntity<>(new CustomErrorType("No tienes permisos para esta accion", "No has ingresado ni un producto").getResponse(), HttpStatus.CONFLICT);
         }
 
-        ValeSalida valeExist = valeSalidaService.findValeSalidaByNumeroRequisicion(vale.getNumeroRequisicion());
-        if (valeExist != null) {
-            return new ResponseEntity<>(new CustomErrorType("El vale de salida de la requisición número " + vale.getNumeroRequisicion() + " ya existe",
-                    "El vale de salida ya existe").getResponse(), HttpStatus.CONFLICT);
-        }
+//        ValeSalida valeExist = valeSalidaService.findValeSalidaByNumeroRequisicion(vale.getNumeroRequisicion());
+//        if (valeExist != null) {
+//            return new ResponseEntity<>(new CustomErrorType("El vale de salida de la requisición número " + vale.getNumeroRequisicion() + " ya existe",
+//                    "El vale de salida ya existe").getResponse(), HttpStatus.CONFLICT);
+//        }
 
         if ( vale.getArea() == null || vale.getFactura() == null || vale.getNumeroRequisicion() == null) {
             return new ResponseEntity<>(new CustomErrorType("Ingresa los campos obligatorios", "No has ingresado todos los campos").getResponse(),
@@ -119,7 +119,9 @@ public class ValeSalidaController {
             return new ResponseEntity<>(new CustomErrorType("Ingresa al menos un producto", "No has ingresado ni un producto").getResponse(),
                     HttpStatus.CONFLICT);
         }
+        // Productos agregados al vale de salida
         List<ValeProducto> listValeProductos = vale.getItems();
+
         Factura factura = vale.getFactura();
         ArrayList<FacturaProducto> listProductsFactura = new ArrayList<>(factura.getItems());
 
@@ -134,7 +136,7 @@ public class ValeSalidaController {
             producto.setCantidad(producto.getCantidad() - salidaProducto.getCantidadEntregada());
             listProductsFactura.forEach(pFactura -> {
                 if (pFactura.getProducto().getClave().equals(salidaProducto.getProducto().getClave())) {
-                    pFactura.setCantidad(pFactura.getCantidad() - salidaProducto.getCantidadEntregada());
+                    pFactura.setCantidadRestante(pFactura.getCantidad() - salidaProducto.getCantidadEntregada());
                     facturaService.saveFactura(factura);
                     return;
                 }
@@ -151,6 +153,6 @@ public class ValeSalidaController {
         valeSalidaService.saveValeSalida(vale);
 
         return new ResponseEntity<>(new CustomResponseType("Se regitró el vale de salida con el número " + vale.getNumeroRequisicion(),
-                "número de requisición", vale.getNumeroRequisicion(), "Vale de salida registrado").getResponse(), HttpStatus.OK);
+                "idVale", vale.getIdValeSalida(), "Vale de salida registrado").getResponse(), HttpStatus.OK);
     }
 }

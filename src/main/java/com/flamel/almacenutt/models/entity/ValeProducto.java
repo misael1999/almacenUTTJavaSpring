@@ -24,9 +24,9 @@ public class ValeProducto implements Serializable {
     private String unidadMedida;
 
     @ManyToOne(fetch= FetchType.LAZY)
-    @JoinColumn(name="id_producto")
+    @JoinColumn(name="id_factura_producto")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    private Producto producto;
+    private FacturaProducto facturaProducto;
 
     public Long getIdSalidaProducto() {
         return idSalidaProducto;
@@ -60,13 +60,11 @@ public class ValeProducto implements Serializable {
         this.unidadMedida = unidadMedida;
     }
 
-    public Producto getProducto() {
-        return producto;
+    public FacturaProducto getFacturaProducto() {
+        return facturaProducto;
     }
 
-    public void setProducto(Producto producto) {
-        this.producto = producto;
+    public void setFacturaProducto(FacturaProducto facturaProducto) {
+        this.facturaProducto = facturaProducto;
     }
-
-
 }

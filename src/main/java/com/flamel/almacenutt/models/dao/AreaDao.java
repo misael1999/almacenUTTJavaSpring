@@ -8,7 +8,9 @@ import java.util.List;
 
 public interface AreaDao extends JpaRepository<Area, Long> {
 
-    Area findAreaByNombre(String nombre);
+    @Query("select  a from Area a where a.nombre = ?1")
+    Area getAreaNombre(String nombre);
+
     @Query("select  a from Area a where a.status = 1")
     List<Area> listAllArea();
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -15,10 +16,7 @@ public class Usuario implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idUsuario;
 
-    @Column(name = "primer_nombre")
-    private String primerNombre;
-    @Column(name = "segundo_nombre", nullable = true)
-    private String segundoNombre;
+    private String nombre;
     @Column(name = "apellido_paterno")
     private String apellidoPaterno;
     @Column(name = "apellido_materno")
@@ -39,6 +37,14 @@ public class Usuario implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Boolean status = true;
 
+    public Usuario() {
+        this.privilegios = new ArrayList<>();
+    }
+
+    public void addPrivilegio(PrivilegioUsuario privilegioUsuario) {
+        this.privilegios.add(privilegioUsuario);
+    };
+
     public Long getIdUsuario() {
         return idUsuario;
     }
@@ -47,20 +53,12 @@ public class Usuario implements Serializable {
         this.idUsuario = id_usuario;
     }
 
-    public String getPrimerNombre() {
-        return primerNombre;
+    public String getNombre() {
+        return nombre;
     }
 
-    public void setPrimerNombre(String primerNombre) {
-        this.primerNombre = primerNombre;
-    }
-
-    public String getSegundoNombre() {
-        return segundoNombre;
-    }
-
-    public void setSegundoNombre(String segundoNombre) {
-        this.segundoNombre = segundoNombre;
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
     public String getApellidoPaterno() {
@@ -78,14 +76,6 @@ public class Usuario implements Serializable {
     public void setApellidoMaterno(String apellidoMaterno) {
         this.apellidoMaterno = apellidoMaterno;
     }
-
-//    public Area getArea() {
-//        return area;
-//    }
-//
-//    public void setArea(Area area) {
-//        this.area = area;
-//    }
 
     public String getRole() {
         return role;

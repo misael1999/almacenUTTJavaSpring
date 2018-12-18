@@ -54,14 +54,6 @@ public interface ValeSalidaDao extends JpaRepository<ValeSalida, Long> {
             "group by a.id_area")
     List<ReporteGastoArea> getAreasGastos(String fecha1, String fecha2);
 
-    @Query(nativeQuery = true, value = "select p.clave, p.descripcion, sp.cantidad_entregada as cantidad, p.unidad, p.precio, pr.nombre as proveedor " +
-            "from vales_salidas v " +
-            "inner join salidas_productos sp on v.id_vale_salida = sp.id_vale_salida " +
-            "inner join productos p on p.id_producto = sp.id_producto " +
-            "inner join proveedores pr on pr.id_proveedor = p.id_proveedor " +
-            "where v.id_area = ?1 and v.fecha_entrega between ?2 and ?3 ")
-    List<ReporteProducto> getProductosByArea(Long idArea, String fecha1, String fecha2);
-
     @Query("select count(v.idValeSalida) from ValeSalida v")
     Long getTotalValeSalida();
 

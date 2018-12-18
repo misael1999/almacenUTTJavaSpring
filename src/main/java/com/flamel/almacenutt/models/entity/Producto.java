@@ -24,7 +24,8 @@ public class Producto implements Serializable {
     private String descripcion;
 
     private Integer cantidad;
-    private String unidad;
+    @Column(name = "unidad_medida")
+    private String unidadMedida;
     private Double precio;
     @Column(name = "id_proveedor")
     private Long idProveedor;
@@ -69,12 +70,12 @@ public class Producto implements Serializable {
         this.cantidad = cantidad;
     }
 
-    public String getUnidad() {
-        return unidad;
+    public String getUnidadMedida() {
+        return unidadMedida;
     }
 
-    public void setUnidad(String unidad) {
-        this.unidad = unidad;
+    public void setUnidadMedida(String unidadMedida) {
+        this.unidadMedida = unidadMedida;
     }
 
     public Double getPrecio() {

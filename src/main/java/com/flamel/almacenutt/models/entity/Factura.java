@@ -42,7 +42,7 @@ public class Factura implements Serializable {
     private String descripcion;
     private String folio;
     private String documento;
-
+    private Boolean completada = false;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "id_factura")

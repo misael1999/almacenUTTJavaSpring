@@ -45,6 +45,6 @@ public class ReporteServiceImpl implements ReporteService {
 
     @Override
     public List<ReporteProducto> getProductosByArea(Long idArea, String fecha1, String fecha2) {
-        return valeSalidaDao.getProductosByArea(idArea, fecha1, fecha2);
+        return productoDao.getProductosByArea(idArea, fecha1, fecha2);
     }
 }

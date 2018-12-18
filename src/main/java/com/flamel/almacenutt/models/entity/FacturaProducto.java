@@ -22,6 +22,8 @@ public class FacturaProducto implements Serializable {
     private Producto producto;
 
     private Integer cantidad;
+    @Column(name = "cantidad_restante")
+    private Integer cantidadRestante;
 
     public Producto getProducto() {
         return producto;
@@ -49,6 +51,14 @@ public class FacturaProducto implements Serializable {
 
     public Double calcularImporte() {
         return cantidad.doubleValue() * producto.getPrecio();
+    }
+
+    public Integer getCantidadRestante() {
+        return cantidadRestante;
+    }
+
+    public void setCantidadRestante(Integer cantidadRestante) {
+        this.cantidadRestante = cantidadRestante;
     }
 
     private static final long serialVersionUID = 1L;

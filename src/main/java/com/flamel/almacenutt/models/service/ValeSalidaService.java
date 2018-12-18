@@ -20,6 +20,7 @@ public interface ValeSalidaService {
     List<ValeSalida> findValeSalidaByIdArea(Long idArea);
     ValeSalida getValeSalidaByNumeroRequisicion(Long numeroRequisicion);
     List<ValeSalida> getValesByTerminoLike(@Param("termino") String termino);
+    ValeSalida getValeSalidaById(Long idVale);
 
 
 

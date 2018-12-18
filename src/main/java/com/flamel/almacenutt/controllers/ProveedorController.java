@@ -60,7 +60,7 @@ public class ProveedorController {
         Usuario usuario = usuarioService.findByNombreUsuario(authentication.getName());
         boolean privilegio = false;
         for (PrivilegioUsuario privilegioUsuario: usuario.getPrivilegios()) {
-            if (privilegioUsuario.getPrivilegio().getNombre().equals("agregar proveedor")) {
+            if (privilegioUsuario.getPrivilegio().getNombre().equals("agregar proveedores")) {
                 privilegio = true;
                 break;
             }

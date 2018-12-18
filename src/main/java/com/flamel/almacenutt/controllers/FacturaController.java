@@ -102,7 +102,7 @@ public class FacturaController {
         Usuario usuario = usuarioService.findByNombreUsuario(authentication.getName());
         Boolean privilegio = false;
         for (PrivilegioUsuario privilegioUsuario: usuario.getPrivilegios()) {
-            if (privilegioUsuario.getPrivilegio().getNombre().equals("ingresar facturas")) {
+            if (privilegioUsuario.getPrivilegio().getNombre().equals("agregar facturas")) {
                 privilegio = true;
                 continue;
             }
@@ -140,6 +140,7 @@ public class FacturaController {
                 producto.setIdProveedor(factura.getProveedor().getIdProveedor());
                 productoService.saveProducto(producto);
                 facturaProducto.setProducto(producto);
+                facturaProducto.setCantidadRestante(facturaItems.get(i).getCantidad());
                 facturaProducto.setCantidad(facturaItems.get(i).getCantidad());
                 factura.addItemFactura(facturaProducto);
             } else {
@@ -147,6 +148,7 @@ public class FacturaController {
                 productoAux.setCantidad(productoAux.getCantidad() + facturaItems.get(i).getCantidad());
                 facturaProducto.setProducto(productoAux);
                 facturaProducto.setCantidad(facturaItems.get(i).getCantidad());
+                facturaProducto.setCantidadRestante(facturaItems.get(i).getCantidad());
                 factura.addItemFactura(facturaProducto);
             }
         }
@@ -167,7 +169,7 @@ public class FacturaController {
             return new ResponseEntity<>(new CustomErrorType("El proveedor no existe", "No existe el proveedor").getResponse(), HttpStatus.CONFLICT);
         }
 
-        // datos de la factura anterior para recuperar la cantidad anterior
+        // datos de la factura anterior para recuperar la cantidad anterior :v
         Factura facturaAux = facturaService.getFacturaByFolio(factura.getFolio());
         ArrayList<FacturaProducto> listProductos = new ArrayList<>(factura.getItems());
         ArrayList<FacturaProducto> listProductosAux = new ArrayList<>(facturaAux.getItems());
@@ -186,12 +188,14 @@ public class FacturaController {
                 productoService.saveProducto(producto);
                 facturaProducto.setProducto(producto);
                 facturaProducto.setCantidad(producto.getCantidad());
+                facturaProducto.setCantidadRestante(producto.getCantidad());
+
                 factura.addItemFactura(facturaProducto);
             } else {
                 // SI EL PRODUCTO EXISTE LO ACTUALIZAMOS
                 boolean encontrado = false;
                 for (int i = 0; i < listProductosAux.size(); i++) {
-                    if (productoAux.getClave() == listProductosAux.get(i).getProducto().getClave()) {
+                    if (productoAux.getClave().equals(listProductosAux.get(i).getProducto().getClave())) {
                         int nuevaCantidad = 0;
                         if (productoAux.getCantidad() < listProductosAux.get(i).getCantidad()) {
                             nuevaCantidad = listProductosAux.get(i).getCantidad() - productoAux.getCantidad();
@@ -200,12 +204,13 @@ public class FacturaController {
                         }
                         productoAux.setDescripcion(productoFactura.getProducto().getDescripcion());
                         productoAux.setPrecio(productoFactura.getProducto().getPrecio());
-                        productoAux.setUnidad(productoFactura.getProducto().getUnidad());
+                        productoAux.setUnidadMedida(productoFactura.getProducto().getUnidadMedida());
                         productoAux.setCantidad(nuevaCantidad + productoFactura.getCantidad());
                         productoAux.setIdProveedor(proveedor.getIdProveedor());
                         productoService.saveProducto(productoAux);
                         facturaProducto.setProducto(productoAux);
                         facturaProducto.setCantidad(productoFactura.getCantidad());
+                        facturaProducto.setCantidadRestante(productoFactura.getCantidad());
                         facturaProducto.setIdFacturaProducto(facturaProducto.getIdFacturaProducto());
                         factura.addItemFactura(facturaProducto);
                         encontrado = true;
@@ -218,6 +223,7 @@ public class FacturaController {
                     productoService.saveProducto(productoAux);
                     facturaProducto.setProducto(productoAux);
                     facturaProducto.setCantidad(productoFactura.getCantidad());
+                    facturaProducto.setCantidadRestante(productoFactura.getCantidad());
                     facturaProducto.setIdFacturaProducto(productoFactura.getIdFacturaProducto());
                     factura.addItemFactura(facturaProducto);
                 }

@@ -8,7 +8,7 @@
 	<field name="clave" class="java.lang.String"/>
 	<field name="descripcion" class="java.lang.String"/>
 	<field name="cantidad" class="java.lang.Integer"/>
-	<field name="unidad" class="java.lang.String"/>
+	<field name="unidadMedida" class="java.lang.String"/>
 	<field name="precio" class="java.lang.Double"/>
 	<field name="proveedor" class="java.lang.String"/>
 	<background>
@@ -111,13 +111,6 @@
 				<textFieldExpression><![CDATA[$F{cantidad}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="449" y="0" width="53" height="20" uuid="fc113394-acdd-4e67-bb3a-7c7292f193cf"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font size="9"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{unidad}]]></textFieldExpression>
-			</textField>
-			<textField>
 				<reportElement x="502" y="0" width="53" height="20" uuid="91cfab97-98e8-43c0-b9f1-62e72a635333"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="9"/>
@@ -137,6 +130,13 @@
 					<font size="9"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{proveedor}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="449" y="0" width="53" height="20" uuid="42a8ce26-b9bc-4622-b8e7-8ab49fdfdaf7"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{unidadMedida}]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>

@@ -2,6 +2,8 @@ package com.flamel.almacenutt.controllers;
 
 
 import com.flamel.almacenutt.models.entity.Area;
+import com.flamel.almacenutt.models.entity.Privilegio;
+import com.flamel.almacenutt.models.entity.PrivilegioUsuario;
 import com.flamel.almacenutt.models.entity.Usuario;
 import com.flamel.almacenutt.models.service.UsuarioService;
 import com.flamel.almacenutt.util.ChangePassword;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -45,16 +48,26 @@ public class UsuarioController {
     public ResponseEntity<?> createUsuario(@RequestBody() Usuario usuario) {
 
         if (usuario.getNombreUsuario().isEmpty() || usuario.getPassword().isEmpty()
-                || usuario.getRole().isEmpty() || usuario.getPrimerNombre().isEmpty()
+                || usuario.getRole().isEmpty() || usuario.getNombre().isEmpty()
                 || usuario.getApellidoMaterno().isEmpty() || usuario.getApellidoPaterno().isEmpty()) {
             return new ResponseEntity<>(new CustomErrorType("Ingresa todos los campos",
                     "No has ingresado todos los campos").getResponse(), HttpStatus.CONFLICT);
         }
 
+
         Usuario usuarioAux = usuarioService.findByNombreUsuario(usuario.getNombreUsuario());
         if (usuarioAux != null) {
             return new ResponseEntity<>(new CustomErrorType("El usuario con el nombre " + usuario.getNombreUsuario() + "ya existe",
                     "El usuario ya existe").getResponse(), HttpStatus.CONFLICT);
+        }
+
+        if (usuario.getRole().equals("ROLE_ADMIN")) {
+            PrivilegioUsuario privilegioUsuario = new PrivilegioUsuario();
+            List<Privilegio> privilegios = usuarioService.getPrivilegios();
+            privilegios.forEach(privilegio -> {
+                privilegioUsuario.setPrivilegio(privilegio);
+                usuario.addPrivilegio(privilegioUsuario);
+            });
         }
 
         usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
@@ -65,8 +78,10 @@ public class UsuarioController {
 
     // ACTUALIZAR USUARIO
     @RequestMapping(value = "/usuarios", method = RequestMethod.PATCH)
-    public ResponseEntity<?> updateUsuario(@RequestBody() Usuario usuario) {
+    public ResponseEntity<?> updateUsuario(@RequestBody() Usuario usuario, Authentication authentication) {
 
+        Usuario usuario1 = usuarioService.findByNombreUsuario(authentication.getName());
+        usuario.setIdUsuario(usuario1.getIdUsuario());
         usuarioService.saveUsuario(usuario);
 
         if (!usuario.getStatus()) {
@@ -118,14 +133,23 @@ public class UsuarioController {
     }
 
     @RequestMapping(value = "/areas", method = RequestMethod.POST)
-    public ResponseEntity<?> crearArea(@RequestBody() Area area) {
+    public ResponseEntity<?> crearArea(@RequestBody() Area area, Authentication authentication) {
 
-        Area areaAux = usuarioService.findAreaByNombre(area.getNombre());
-        if (areaAux != null) {
-            return new ResponseEntity<>(new CustomErrorType("El area con el nombre " + area.getNombre() + "ya existe",
+        Area areaAux = usuarioService.getAreaNombre(area.getNombre());
+        if (areaAux != null && areaAux.getStatus()) {
+            return new ResponseEntity<>(new CustomErrorType("El area con el nombre " + area.getNombre() + " ya existe",
                     "El area ya existe").getResponse(), HttpStatus.CONFLICT);
+        } else if (areaAux != null && !areaAux.getStatus()) {
+            Usuario usuario =  usuarioService.findByNombreUsuario(authentication.getName());
+            areaAux.setResponsable(area.getResponsable());
+            areaAux.setIdUsuario(usuario.getIdUsuario());
+            areaAux.setStatus(true);
+            usuarioService.saveArea(areaAux);
+            return new ResponseEntity<>(new CustomResponseType("Area creada correctamente", "", "", "Area creada").getResponse(), HttpStatus.CREATED);
         }
 
+        Usuario usuario =  usuarioService.findByNombreUsuario(authentication.getName());
+        area.setIdUsuario(usuario.getIdUsuario());
         usuarioService.saveArea(area);
         return new ResponseEntity<>(new CustomResponseType("Area creada correctamente", "", "", "Area creada").getResponse(), HttpStatus.CREATED);
     }

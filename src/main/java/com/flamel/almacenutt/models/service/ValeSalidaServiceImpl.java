@@ -53,5 +53,10 @@ public class ValeSalidaServiceImpl implements ValeSalidaService {
         return valeSalidaDao.getValesByTerminoLike(termino);
     }
 
+    @Override
+    public ValeSalida getValeSalidaById(Long idVale) {
+        return valeSalidaDao.findById(idVale).orElse(null);
+    }
+
 
 }

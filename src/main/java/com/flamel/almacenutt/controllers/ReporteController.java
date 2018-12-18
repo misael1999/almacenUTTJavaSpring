@@ -102,11 +102,11 @@ public class ReporteController {
 
     // IMPRIMIR VALE DE SALIDA
 
-    @RequestMapping(value = "/generar/vales/{numeroRequisicion}", method = RequestMethod.GET)
-    public ResponseEntity<byte[]> getValeSalida(@PathVariable("numeroRequisicion") Long numeroRequisicion) {
+    @RequestMapping(value = "/generar/vales/{idVale}", method = RequestMethod.GET)
+    public ResponseEntity<byte[]> getValeSalida(@PathVariable("idVale") Long idVale) {
 
         byte[] reporte = null;
-        ValeSalida vale = valeSalidaService.getValeSalidaByNumeroRequisicion(numeroRequisicion);
+        ValeSalida vale = valeSalidaService.getValeSalidaById(idVale);
         Map<String, Object> params = new HashMap<>();
         params.put("numeroRequisicion", String.valueOf(vale.getNumeroRequisicion()));
         params.put("area", vale.getArea().getNombre().toUpperCase());
@@ -119,8 +119,6 @@ public class ReporteController {
         HttpHeaders cabecera = new HttpHeaders();
         cabecera.add(HttpHeaders.CONTENT_DISPOSITION, "filename=\"vale.pdf\"");
         return new ResponseEntity<byte[]>(reporte, cabecera, HttpStatus.OK);
-
-
     }
 
     @RequestMapping(value = "/reportes/productos/areas", method = RequestMethod.GET)

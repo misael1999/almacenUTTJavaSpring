@@ -2,7 +2,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report name" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="d6b9fbde-38b0-4954-949f-29496e8c1eff">
 	<property name="ireport.zoom" value="1.100000000000002"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="0"/>
+	<property name="ireport.y" value="54"/>
 	<parameter name="fecha1" class="java.lang.String"/>
 	<parameter name="fecha2" class="java.lang.String"/>
 	<field name="area" class="java.lang.String"/>
@@ -60,10 +60,10 @@
 			</staticText>
 			<staticText>
 				<reportElement mode="Opaque" x="286" y="0" width="269" height="28" forecolor="#FFFFFF" backcolor="#2A3153" uuid="2b267e42-8a3c-419d-809d-0368d94f0050"/>
-				<textElement textAlignment="Left" verticalAlignment="Middle">
+				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="15"/>
 				</textElement>
-				<text><![CDATA[ Gastos]]></text>
+				<text><![CDATA[ Gastos ]]></text>
 			</staticText>
 		</band>
 	</columnHeader>
@@ -75,12 +75,12 @@
 				<textFieldExpression><![CDATA[$F{area}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="309" y="1" width="246" height="20" uuid="c5bdd306-cdd3-411c-a19d-b86ac2b52126"/>
-				<textElement textAlignment="Left" verticalAlignment="Middle"/>
+				<reportElement x="432" y="1" width="123" height="20" uuid="c5bdd306-cdd3-411c-a19d-b86ac2b52126"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
 				<textFieldExpression><![CDATA[$F{gastos}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="286" y="1" width="23" height="20" uuid="ec0b295c-a054-466a-8faa-6d495fd71ac3"/>
+				<reportElement x="409" y="0" width="23" height="20" uuid="ec0b295c-a054-466a-8faa-6d495fd71ac3"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle"/>
 				<text><![CDATA[$]]></text>
 			</staticText>

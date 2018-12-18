@@ -17,7 +17,7 @@ public interface UsuarioService {
     List<Area> findAllAreas();
     void saveArea(Area area);
     Area findAreaByid(Long idArea);
-    Area findAreaByNombre(String nombre);
+    Area getAreaNombre(String nombre);
 
     List<Privilegio> getPrivilegios();
 

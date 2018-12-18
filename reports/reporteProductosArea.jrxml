@@ -10,7 +10,7 @@
 	<field name="clave" class="java.lang.String"/>
 	<field name="descripcion" class="java.lang.String"/>
 	<field name="cantidad" class="java.lang.Integer"/>
-	<field name="unidad" class="java.lang.String"/>
+	<field name="unidadMedida" class="java.lang.String"/>
 	<field name="precio" class="java.lang.Double"/>
 	<field name="proveedor" class="java.lang.String"/>
 	<variable name="total" class="java.math.BigDecimal" calculation="Sum"/>
@@ -34,11 +34,6 @@
 				<reportElement x="33" y="14" width="149" height="63" uuid="811d25e5-0c21-4ad7-b2ff-d7e1de2dbb2e"/>
 				<imageExpression><![CDATA["C:\\Users\\MI7\\Documents\\NetBeansProjects\\report\\src\\report\\nuevos\\logoUTT.png"]]></imageExpression>
 			</image>
-			<textField>
-				<reportElement x="33" y="30" width="100" height="20" uuid="1e8ac259-7c42-47d0-b45f-60d03fd6d162"/>
-				<textElement verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$P{fecha2}]]></textFieldExpression>
-			</textField>
 			<staticText>
 				<reportElement x="286" y="14" width="23" height="20" uuid="4f4d82b9-ff17-464e-95fa-068647ee792e"/>
 				<textElement textAlignment="Left" verticalAlignment="Middle"/>
@@ -57,7 +52,7 @@
 				<text><![CDATA[Área:]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="319" y="57" width="100" height="20" uuid="cf240ee5-50d1-48b7-9261-50397769837a"/>
+				<reportElement x="319" y="57" width="230" height="20" uuid="cf240ee5-50d1-48b7-9261-50397769837a"/>
 				<textElement textAlignment="Left" verticalAlignment="Middle"/>
 				<textFieldExpression><![CDATA[$P{area}]]></textFieldExpression>
 			</textField>
@@ -136,13 +131,6 @@
 				<textFieldExpression><![CDATA[$F{cantidad}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="449" y="0" width="53" height="20" uuid="fc113394-acdd-4e67-bb3a-7c7292f193cf"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font size="9"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{unidad}]]></textFieldExpression>
-			</textField>
-			<textField>
 				<reportElement x="502" y="0" width="53" height="20" uuid="91cfab97-98e8-43c0-b9f1-62e72a635333"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="9"/>
@@ -163,35 +151,31 @@
 				</textElement>
 				<textFieldExpression><![CDATA[$F{proveedor}]]></textFieldExpression>
 			</textField>
+			<textField>
+				<reportElement x="449" y="0" width="53" height="20" uuid="2aa5717a-70c5-4921-a023-ce0ec22c4f6d"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{unidadMedida}]]></textFieldExpression>
+			</textField>
 		</band>
 	</detail>
-	<columnFooter>
-		<band height="51" splitType="Stretch">
+	<summary>
+		<band height="40" splitType="Stretch">
 			<staticText>
-				<reportElement x="402" y="25" width="47" height="26" uuid="47b409a0-a781-4bcf-9b34-30084793a0f9"/>
+				<reportElement x="444" y="14" width="47" height="26" uuid="7f9507b2-ca04-4a67-be15-8317462721ec"/>
 				<textElement verticalAlignment="Middle">
 					<font size="16" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Total:]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="449" y="25" width="100" height="26" uuid="3624104f-af05-47e2-bd46-f52276eef9b7"/>
+				<reportElement x="491" y="14" width="64" height="26" uuid="3b855397-200e-4a33-838e-4e55db918965"/>
 				<textElement verticalAlignment="Middle">
 					<font size="16"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{total}]]></textFieldExpression>
 			</textField>
 		</band>
-	</columnFooter>
-	<pageFooter>
-		<band height="54" splitType="Stretch">
-			<textField>
-				<reportElement positionType="Float" x="268" y="17" width="18" height="20" uuid="b927039c-e970-4321-a396-ca2d94c890b2"/>
-				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
-			</textField>
-		</band>
-	</pageFooter>
-	<summary>
-		<band height="42" splitType="Stretch"/>
 	</summary>
 </jasperReport>

@@ -13,7 +13,8 @@ public class Area implements Serializable {
     private Long idArea;
     @Column(unique = true)
     private String nombre;
-
+    @Column(name = "id_usuario")
+    private Long idUsuario;
     private String responsable;
 
     private Boolean status;
@@ -31,7 +32,7 @@ public class Area implements Serializable {
     }
 
     public void setNombre(String nombre) {
-        this.nombre = nombre;
+        this.nombre = nombre.toLowerCase();
     }
 
     public String getResponsable() {
@@ -48,6 +49,14 @@ public class Area implements Serializable {
 
     public void setStatus(Boolean status) {
         this.status = status;
+    }
+
+    public Long getIdUsuario() {
+        return idUsuario;
+    }
+
+    public void setIdUsuario(Long idUsuario) {
+        this.idUsuario = idUsuario;
     }
 
     private static final long serialVersionUID = 1L;

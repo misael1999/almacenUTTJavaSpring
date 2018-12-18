@@ -63,8 +63,8 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
-    public Area findAreaByNombre(String nombre) {
-        return areaDao.findAreaByNombre(nombre);
+    public Area getAreaNombre(String nombre) {
+        return areaDao.getAreaNombre(nombre);
     }
 
     @Override
