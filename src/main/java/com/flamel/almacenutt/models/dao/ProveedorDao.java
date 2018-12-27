@@ -26,7 +26,7 @@ public interface ProveedorDao extends JpaRepository<Proveedor, Long> {
     @Query("select p from Proveedor p where p.nombre LIKE CONCAT('%',:nombre,'%')")
     List<Proveedor> findProveedorLikeNombre(@Param("nombre") String nombre);
 
-    @Query("select p.nombre from Proveedor p where p.nombre LIKE CONCAT('%',:nombre,'%') order by p.idProveedor desc")
+    @Query("select p.nombre from Proveedor p where p.status = 1 and p.nombre LIKE CONCAT('%',:nombre,'%') order by p.idProveedor desc")
     List<Proveedor> findProveedorByNombreTypehead(@Param("nombre") String nombre);
 
     @Query("select count(p.idProveedor) from Proveedor p where p.status = 1")

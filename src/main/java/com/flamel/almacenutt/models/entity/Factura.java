@@ -41,7 +41,6 @@ public class Factura implements Serializable {
 
     private String descripcion;
     private String folio;
-    private String documento;
     private Boolean completada = false;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
@@ -129,12 +128,12 @@ public class Factura implements Serializable {
         this.descripcion = descripcion;
     }
 
-    public String getDocumento() {
-        return documento;
+    public Boolean getCompletada() {
+        return completada;
     }
 
-    public void setDocumento(String documento) {
-        this.documento = documento;
+    public void setCompletada(Boolean completada) {
+        this.completada = completada;
     }
 
     public Double getTotal() {

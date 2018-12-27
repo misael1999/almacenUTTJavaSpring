@@ -24,9 +24,8 @@ public class ValeSalida implements Serializable {
     @JoinColumn(name = "id_area")
     private Area area;
 
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "fecha_entrega")
-    private Date fechaEntrega;
+    private String fechaEntrega;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "id_vale_salida")
@@ -40,6 +39,8 @@ public class ValeSalida implements Serializable {
     private Factura factura;
 
     private boolean status = true;
+
+    private String documento;
 
     public ValeSalida() {
         this.items = new ArrayList<>();
@@ -61,11 +62,11 @@ public class ValeSalida implements Serializable {
         this.area = area;
     }
 
-    public Date getFechaEntrega() {
+    public String getFechaEntrega() {
         return fechaEntrega;
     }
 
-    public void setFechaEntrega(Date fechaEntrega) {
+    public void setFechaEntrega(String fechaEntrega) {
         this.fechaEntrega = fechaEntrega;
     }
 
@@ -112,5 +113,13 @@ public class ValeSalida implements Serializable {
 
     public void setNumeroRequisicion(Long numeroRequisicion) {
         this.numeroRequisicion = numeroRequisicion;
+    }
+
+    public String getDocumento() {
+        return documento;
+    }
+
+    public void setDocumento(String documento) {
+        this.documento = documento;
     }
 }

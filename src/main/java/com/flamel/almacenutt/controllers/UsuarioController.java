@@ -12,6 +12,7 @@ import com.flamel.almacenutt.util.CustomResponseType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -39,13 +40,25 @@ public class UsuarioController {
     @RequestMapping(value = "/usuarios", method = RequestMethod.GET)
     public ResponseEntity<?> getUsuarios() {
         Map<String, Object> response = new HashMap<>();
-        response.put("usuarios", usuarioService.findAllUsuarios()   );
+        response.put("usuarios", usuarioService.findAllUsuarios());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 
     @RequestMapping(value = "/usuarios", method = RequestMethod.POST)
-    public ResponseEntity<?> createUsuario(@RequestBody() Usuario usuario) {
+    public ResponseEntity<?> createUsuario(@RequestBody() Usuario usuario, Authentication authentication) {
+
+        Usuario usuarioAuth = usuarioService.findByNombreUsuario(authentication.getName());
+        boolean privilegioS = false;
+        for (PrivilegioUsuario privilegioUsuario : usuarioAuth.getPrivilegios()) {
+            if (privilegioUsuario.getPrivilegio().getNombre().equals("agregar usuarios")) {
+                privilegioS = true;
+                break;
+            }
+        }
+        if (!privilegioS) {
+            return new ResponseEntity<>(new CustomErrorType("No tienes permisos para esta accion", "No has ingresado ni un producto").getResponse(), HttpStatus.CONFLICT);
+        }
 
         if (usuario.getNombreUsuario().isEmpty() || usuario.getPassword().isEmpty()
                 || usuario.getRole().isEmpty() || usuario.getNombre().isEmpty()
@@ -62,7 +75,6 @@ public class UsuarioController {
         }
 
         if (usuario.getRole().equals("ROLE_ADMIN")) {
-            System.out.println("entro");
             PrivilegioUsuario privilegioUsuario = null;
             List<Privilegio> privilegios = usuarioService.getPrivilegios();
             for (Privilegio privilegio : privilegios) {
@@ -73,7 +85,14 @@ public class UsuarioController {
         }
 
         usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
-        usuarioService.saveUsuario(usuario);
+        try {
+            usuarioService.saveUsuario(usuario);
+        } catch (DataAccessException e) {
+            return new ResponseEntity<>(new CustomErrorType("Ocurrio un error al guardar el usuario, contacte con el administrador del sistema ",
+                    "Error").getResponse(),
+                    HttpStatus.CONFLICT);
+        }
+
         return new ResponseEntity<>(new CustomResponseType("Usuario creado correctamente", "", "", "Usuario creado").getResponse(), HttpStatus.CREATED);
 
     }
@@ -83,8 +102,23 @@ public class UsuarioController {
     public ResponseEntity<?> updateUsuario(@RequestBody() Usuario usuario, Authentication authentication) {
 
         Usuario usuario1 = usuarioService.findByNombreUsuario(authentication.getName());
-        usuario.setIdUsuario(usuario1.getIdUsuario());
-        usuarioService.saveUsuario(usuario);
+        boolean privilegio = false;
+        for (PrivilegioUsuario privilegioUsuario : usuario1.getPrivilegios()) {
+            if (privilegioUsuario.getPrivilegio().getNombre().equals("actualizar usuarios")) {
+                privilegio = true;
+                break;
+            }
+        }
+        if (!privilegio) {
+            return new ResponseEntity<>(new CustomErrorType("No tienes permisos para esta accion", "No has ingresado ni un producto").getResponse(), HttpStatus.CONFLICT);
+        }
+        try {
+            usuarioService.saveUsuario(usuario);
+        } catch (DataAccessException e) {
+            return new ResponseEntity<>(new CustomErrorType("Ocurrio un error al actualizar el usuario, contacte con el administrador del sistema ",
+                    "Error").getResponse(),
+                    HttpStatus.CONFLICT);
+        }
 
         if (!usuario.getStatus()) {
             return new ResponseEntity<>(new CustomResponseType("Se ha eliminado el usuario " + usuario.getNombreUsuario(),
@@ -102,16 +136,26 @@ public class UsuarioController {
     @RequestMapping(value = "/usuarios/{nombreUsuario}", method = RequestMethod.GET)
     public ResponseEntity<?> getUsuarioByNombreUsuario(@PathVariable("nombreUsuario") String nombreUsuario) {
         return new ResponseEntity<>(new CustomResponseType("Usuario", "usuario",
-                    usuarioService.findByNombreUsuario(nombreUsuario), "").getResponse(),
-                    HttpStatus.OK);
+                usuarioService.findByNombreUsuario(nombreUsuario), "").getResponse(),
+                HttpStatus.OK);
     }
-
 
 
     @RequestMapping(value = "/usuarios/password", method = RequestMethod.PATCH)
     public ResponseEntity<?> cambiarPassword(@RequestBody ChangePassword changePassword, Authentication authentication) {
 
         Usuario usuario = usuarioService.findByNombreUsuario(authentication.getName());
+        boolean privilegio = false;
+        for (PrivilegioUsuario privilegioUsuario : usuario.getPrivilegios()) {
+            if (privilegioUsuario.getPrivilegio().getNombre().equals("cambiar de contrasena")) {
+                privilegio = true;
+                break;
+            }
+        }
+        if (!privilegio) {
+            return new ResponseEntity<>(new CustomErrorType("No tienes permisos para esta accion", "No has ingresado ni un producto").getResponse(), HttpStatus.CONFLICT);
+        }
+
 
         if (usuario == null) {
             return new ResponseEntity<>(new CustomErrorType("No existe el usuario", "El usuario no existe").getResponse(), HttpStatus.CONFLICT);
@@ -122,7 +166,13 @@ public class UsuarioController {
         }
 
         usuario.setPassword(passwordEncoder.encode(changePassword.getPasswordNueva()));
-        usuarioService.saveUsuario(usuario);
+        try {
+            usuarioService.saveUsuario(usuario);
+        } catch (DataAccessException e) {
+            return new ResponseEntity<>(new CustomErrorType("Ocurrio un error al cambiar la contraseña, contacte con el administrador del sistema ",
+                    "Error").getResponse(),
+                    HttpStatus.CONFLICT);
+        }
 
         return new ResponseEntity<>(new CustomResponseType("Se ha cambiado la contraseña", "", "", "Se cambio la contraseña").getResponse(), HttpStatus.OK);
 
@@ -142,7 +192,7 @@ public class UsuarioController {
             return new ResponseEntity<>(new CustomErrorType("El area con el nombre " + area.getNombre() + " ya existe",
                     "El area ya existe").getResponse(), HttpStatus.CONFLICT);
         } else if (areaAux != null && !areaAux.getStatus()) {
-            Usuario usuario =  usuarioService.findByNombreUsuario(authentication.getName());
+            Usuario usuario = usuarioService.findByNombreUsuario(authentication.getName());
             areaAux.setResponsable(area.getResponsable());
             areaAux.setIdUsuario(usuario.getIdUsuario());
             areaAux.setStatus(true);
@@ -150,7 +200,7 @@ public class UsuarioController {
             return new ResponseEntity<>(new CustomResponseType("Area creada correctamente", "", "", "Area creada").getResponse(), HttpStatus.CREATED);
         }
 
-        Usuario usuario =  usuarioService.findByNombreUsuario(authentication.getName());
+        Usuario usuario = usuarioService.findByNombreUsuario(authentication.getName());
         area.setIdUsuario(usuario.getIdUsuario());
         usuarioService.saveArea(area);
         return new ResponseEntity<>(new CustomResponseType("Area creada correctamente", "", "", "Area creada").getResponse(), HttpStatus.CREATED);
@@ -158,9 +208,29 @@ public class UsuarioController {
 
     // ACTUALIZAR AREA
     @RequestMapping(value = "/areas", method = RequestMethod.PATCH)
-    public ResponseEntity<?> updateAreas(@RequestBody() Area area) {
+    public ResponseEntity<?> updateAreas(@RequestBody() Area area, Authentication authentication) {
 
-        usuarioService.saveArea(area);
+
+        Usuario usuario = usuarioService.findByNombreUsuario(authentication.getName());
+        Boolean privilegio = false;
+        for (PrivilegioUsuario privilegioUsuario : usuario.getPrivilegios()) {
+            if (privilegioUsuario.getPrivilegio().getNombre().equals("actualizar areas")) {
+                privilegio = true;
+                break;
+            }
+        }
+        if (!privilegio) {
+            return new ResponseEntity<>(new CustomErrorType("No tienes permisos para esta accion", "No has ingresado ni un producto").getResponse(), HttpStatus.CONFLICT);
+        }
+
+        area.setIdUsuario(usuario.getIdUsuario());
+        try {
+            usuarioService.saveArea(area);
+        } catch (DataAccessException e) {
+            return new ResponseEntity<>(new CustomErrorType("Ocurrio un error al actualizar el area, contacte con el administrador del sistema ",
+                    "Error").getResponse(),
+                    HttpStatus.CONFLICT);
+        }
 
         if (!area.getStatus()) {
             return new ResponseEntity<>(new CustomResponseType("Se ha eliminado la area " + area.getNombre(),
@@ -181,10 +251,6 @@ public class UsuarioController {
                 usuarioService.getPrivilegios(), "").getResponse(),
                 HttpStatus.OK);
     }
-
-
-
-
 
 
 }

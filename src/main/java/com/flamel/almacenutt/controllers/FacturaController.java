@@ -7,9 +7,11 @@ import com.flamel.almacenutt.models.service.ProveedorService;
 import com.flamel.almacenutt.models.service.UsuarioService;
 import com.flamel.almacenutt.util.CustomErrorType;
 import com.flamel.almacenutt.util.CustomResponseType;
+import org.apache.tomcat.util.http.fileupload.FileUploadBase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
@@ -27,6 +29,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/v1")
@@ -59,7 +62,7 @@ public class FacturaController {
         if (entregadas != null) {
             return new ResponseEntity<>(new CustomResponseType("Lista de facturas",
                     "facturas",
-                    facturaService.listFacturasEntregadas(PageRequest.of(page,  15, sort)), "").getResponse(),
+                    facturaService.listFacturasEntregadas(PageRequest.of(page, 15, sort)), "").getResponse(),
                     HttpStatus.OK);
         }
 
@@ -74,7 +77,7 @@ public class FacturaController {
     public ResponseEntity<?> getFacturaByFolio(@PathVariable("folio") String folio) {
         Factura factura = facturaService.getFacturaByFolio(folio);
         return new ResponseEntity<>(new CustomResponseType("Factura encontrada",
-                "factura", factura,"Factura encontrada").getResponse(), HttpStatus.OK);
+                "factura", factura, "Factura encontrada").getResponse(), HttpStatus.OK);
     }
 
     // OBTENER FACTURA QUE CONCIDA POR PROVEEDOR O FOLIO
@@ -101,10 +104,10 @@ public class FacturaController {
 
         Usuario usuario = usuarioService.findByNombreUsuario(authentication.getName());
         Boolean privilegio = false;
-        for (PrivilegioUsuario privilegioUsuario: usuario.getPrivilegios()) {
+        for (PrivilegioUsuario privilegioUsuario : usuario.getPrivilegios()) {
             if (privilegioUsuario.getPrivilegio().getNombre().equals("agregar facturas")) {
                 privilegio = true;
-                continue;
+                break;
             }
         }
         if (!privilegio) {
@@ -131,14 +134,21 @@ public class FacturaController {
 
         for (int i = 0; i < facturaItems.size(); i++) {
             Producto producto = facturaItems.get(i).getProducto();
-            Producto productoAux = productoService.getProductoByClave(producto.getClave().toLowerCase());
+            Producto productoAux = productoService.getProductoByClaveAndDescripcion(producto.getClave().toLowerCase(), producto.getDescripcion().toLowerCase());
             FacturaProducto facturaProducto = new FacturaProducto();
             // si el producto no existe
             if (productoAux == null) {
                 producto.setIdUsuario(factura.getIdUsuario());
                 producto.setCantidad(facturaItems.get(i).getCantidad());
                 producto.setIdProveedor(factura.getProveedor().getIdProveedor());
-                productoService.saveProducto(producto);
+                try {
+                    productoService.saveProducto(producto);
+                } catch (DataAccessException e) {
+                    return new ResponseEntity<>(new CustomErrorType("Ocurrio un error al guardar la factura, contacte con el administrador del sistema ",
+                            "Error").getResponse(),
+                            HttpStatus.CONFLICT);
+                }
+
                 facturaProducto.setProducto(producto);
                 facturaProducto.setCantidadRestante(facturaItems.get(i).getCantidad());
                 facturaProducto.setCantidad(facturaItems.get(i).getCantidad());
@@ -146,6 +156,7 @@ public class FacturaController {
             } else {
                 // si el producto existe
                 productoAux.setCantidad(productoAux.getCantidad() + facturaItems.get(i).getCantidad());
+                productoAux.setDescripcion(producto.getDescripcion());
                 facturaProducto.setProducto(productoAux);
                 facturaProducto.setCantidad(facturaItems.get(i).getCantidad());
                 facturaProducto.setCantidadRestante(facturaItems.get(i).getCantidad());
@@ -153,7 +164,14 @@ public class FacturaController {
             }
         }
         factura.setIdUsuario(usuario.getIdUsuario());
-        facturaService.saveFactura(factura);
+        try {
+            facturaService.saveFactura(factura);
+        } catch (DataAccessException e) {
+            return new ResponseEntity<>(new CustomErrorType("Ocurrio un error al guardar la factura, contacte con el administrador del sistema ",
+                    "Error").getResponse(),
+                    HttpStatus.CONFLICT);
+        }
+
 
         return new ResponseEntity<>(new CustomResponseType("Ha sido registrada la factura  con el folio " + factura.getFolio(),
                 "folio", factura.getFolio(), "Factura registrada").getResponse(), HttpStatus.OK);
@@ -163,8 +181,20 @@ public class FacturaController {
     // EDITAR FACTURA
     @RequestMapping(value = "/facturas", method = RequestMethod.PATCH)
     public ResponseEntity<?> actualizarFactura(@RequestBody() Factura factura, Authentication authentication) {
-        Proveedor proveedor = proveedorService.getProveedorByNombre(factura.getProveedor().getNombre());
+
         Usuario usuario = usuarioService.findByNombreUsuario(authentication.getName());
+        Boolean privilegio = false;
+        for (PrivilegioUsuario privilegioUsuario : usuario.getPrivilegios()) {
+            if (privilegioUsuario.getPrivilegio().getNombre().equals("actualizar facturas")) {
+                privilegio = true;
+                break;
+            }
+        }
+        if (!privilegio) {
+            return new ResponseEntity<>(new CustomErrorType("No tienes permisos para esta accion", "No has ingresado ni un producto").getResponse(), HttpStatus.CONFLICT);
+        }
+
+        Proveedor proveedor = proveedorService.getProveedorByNombre(factura.getProveedor().getNombre());
         if (proveedor == null) {
             return new ResponseEntity<>(new CustomErrorType("El proveedor no existe", "No existe el proveedor").getResponse(), HttpStatus.CONFLICT);
         }
@@ -175,11 +205,12 @@ public class FacturaController {
         ArrayList<FacturaProducto> listProductosAux = new ArrayList<>(facturaAux.getItems());
         factura.getItems().clear();
         // AGREGAR EL NUEVO PRODUCTO SI NO EXISTE
-        listProductos.forEach(productoFactura -> {
+        for(FacturaProducto productoFactura : listProductos) {
             // VARIBLES PARA VERIFICAR SI EXISTE EL PRODUCTO
             String clave = productoFactura.getProducto().getClave();
+            String descripcion = productoFactura.getProducto().getDescripcion();
             FacturaProducto facturaProducto = new FacturaProducto();
-            Producto productoAux = productoService.getProductoByClave(clave);
+            Producto productoAux = productoService.getProductoByClaveAndDescripcion(clave, descripcion);
             // si no existe el producto
             if (productoAux == null) {
                 Producto producto = productoFactura.getProducto();
@@ -202,6 +233,14 @@ public class FacturaController {
                         } else {
                             nuevaCantidad = productoAux.getCantidad() - listProductosAux.get(i).getCantidad();
                         }
+                        Integer diferencia = productoFactura.getCantidad() - listProductosAux.get(i).getCantidad();
+                        // Validar si es posible disminuir productos de la factura
+                        Integer nuevaCantidadRestante = listProductosAux.get(i).getCantidadRestante() + diferencia;
+                        if ( nuevaCantidadRestante < 0) {
+                            return new ResponseEntity<>(new CustomErrorType("No es posible disminiur la cantidad del producto " +
+                                    listProductosAux.get(i).getProducto().getDescripcion() + " porque ya fueron entregadas", "No es posible").getResponse(), HttpStatus.CONFLICT);
+                        }
+
                         productoAux.setDescripcion(productoFactura.getProducto().getDescripcion());
                         productoAux.setPrecio(productoFactura.getProducto().getPrecio());
                         productoAux.setUnidadMedida(productoFactura.getProducto().getUnidadMedida());
@@ -211,7 +250,7 @@ public class FacturaController {
                         facturaProducto.setIdFacturaProducto(listProductosAux.get(i).getIdFacturaProducto());
                         facturaProducto.setProducto(productoAux);
                         facturaProducto.setCantidad(productoFactura.getCantidad());
-                        facturaProducto.setCantidadRestante(productoFactura.getCantidad());
+                        facturaProducto.setCantidadRestante(nuevaCantidadRestante);
                         facturaProducto.setIdFacturaProducto(facturaProducto.getIdFacturaProducto());
                         factura.addItemFactura(facturaProducto);
                         encontrado = true;
@@ -230,110 +269,41 @@ public class FacturaController {
                 }
 
             }
-        });
+        }
         // LE RESTO CANTIDAD A LOS PRODUCTOS QUE FUERON ELIMINADOS DE LA FACTURA
         listProductosAux.forEach(productoBorrar -> {
             Producto productoDelete = productoBorrar.getProducto();
             productoDelete.setCantidad(productoDelete.getCantidad() - productoBorrar.getCantidad());
             productoService.saveProducto(productoDelete);
         });
+        boolean completada = true;
+        for (FacturaProducto facturaProducto : factura.getItems()) {
+            if (facturaProducto.getCantidadRestante() > 0) {
+                completada = false;
+                break;
+            }
+        }
+
+        if (!completada) {
+            factura.setCompletada(false);
+        } else {
+            factura.setCompletada(true);
+        }
         factura.setProveedor(proveedor);
-        facturaService.saveFactura(factura);
+        try {
+            facturaService.saveFactura(factura);
+        } catch (DataAccessException e) {
+            return new ResponseEntity<>(new CustomErrorType("Ocurrio un error al actualizar la factura, contacte con el administrador del sistema ",
+                    "Error").getResponse(),
+                    HttpStatus.CONFLICT);
+        }
+
         return new ResponseEntity<>(new CustomResponseType("Se ha actulizo la factura con el folio" + factura.getFolio(),
                 "factura", "", "").getResponse(), HttpStatus.OK);
     }
 
-    // UPLOAD FACTURA
-    @RequestMapping(value = "/facturas/upload", method = RequestMethod.PATCH)
-    public ResponseEntity<?> uploadFactura(@RequestParam(value = "archivo") MultipartFile documento,
-                                           @RequestParam(value = "folio") String folioFactura) {
 
 
-        if (folioFactura == null || folioFactura.isEmpty()) {
-            return new ResponseEntity<>(new CustomErrorType("El folio es necesario",
-                    "No selecciono una factura").getResponse(), HttpStatus.CONFLICT);
-        }
-
-        Factura factura = facturaService.getFacturaByFolio(folioFactura);
-        // NOS ASEGURAMOS QUE SELECCIONE UN ARCHIVO
-        if (documento.isEmpty()) {
-            return new ResponseEntity<>(new CustomErrorType("Debe de seleccionar un archivo",
-                    "No selecciono un archivo").getResponse(), HttpStatus.CONFLICT);
-        }
-
-
-        String[] tipoValido = {"png", "PNG", "jpg", "JPG", "jpeg", "JPEG", "pdf", "PDF"};
-        String tipoArchivo = documento.getContentType().split("/")[1];
-
-        // VERIFICAMOS TIPO DE ARCHIVO
-        if (!Arrays.asList(tipoValido).contains(tipoArchivo)) {
-            return new ResponseEntity<>(new CustomErrorType("Tipo de archivo no permitido",
-                    "Tipo de archivo no permitido").getResponse(), HttpStatus.CONFLICT);
-        }
-
-        // BORRAMOS EL ARCHIVO ANTERIOR
-        if (factura.getDocumento() != null) {
-            String fileName = factura.getDocumento();
-            Path rutaAnterior = Paths.get("uploads/facturas").resolve(fileName).toAbsolutePath();
-            File f = rutaAnterior.toFile();
-            if (f.exists()) {
-                f.delete();
-            }
-        }
-
-        //NOMBRE DEL DOCUMENTO
-        Date date = new Date();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-        String dateName = dateFormat.format(date);
-        String nombreArchivo = factura.getFolio().replace(" ", "-") + "-factura-" + dateName + "." + documento.getContentType().split("/")[1];
-        Path rutaArchivo = Paths.get("uploads/facturas").resolve(nombreArchivo).toAbsolutePath();
-        try {
-            Files.copy(documento.getInputStream(), rutaArchivo);
-        } catch (IOException e) {
-            return new ResponseEntity<>(new CustomErrorType("Ocurrio un error al subir el archivo",
-                    "Error al subir el archivo").getResponse(), HttpStatus.CONFLICT);
-        }
-
-        // ACTUALIZAMOS LA FACTURA CON EL DOCUMENTO
-        factura.setDocumento(nombreArchivo);
-        facturaService.saveFactura(factura);
-        return new ResponseEntity<>(new CustomResponseType("Documento guardado",
-                "", "", "").getResponse(), HttpStatus.CREATED);
-
-
-    }
-
-    // DESCARGAR DOCUMENTO DE LA FACTURA
-    @RequestMapping(value = "/facturas/descargar/documento/{nombre}", method = RequestMethod.GET)
-    public ResponseEntity<org.springframework.core.io.Resource> getArchivo(@PathVariable(value = "nombre") String nombreArchivo) {
-
-        Path rutaArchivo = Paths.get("uploads/facturas").resolve(nombreArchivo).toAbsolutePath();
-        org.springframework.core.io.Resource recurso = null;
-        try {
-            recurso =  new UrlResource(rutaArchivo.toUri());
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-
-        if (!recurso.exists() && !recurso.isReadable()) {
-            throw new RuntimeException("Error no se pudo cargar el archivo: " + nombreArchivo);
-        }
-
-        HttpHeaders cabecera = new HttpHeaders();
-        cabecera.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + recurso.getFilename() + "\"");
-
-        return new ResponseEntity<Resource>(recurso, cabecera, HttpStatus.OK);
-
-    }
-
-    @RequestMapping(value = "/facturas/documentos/{page}", method = RequestMethod.GET)
-    public ResponseEntity<?> getFacturasWithDcouments(@PathVariable("page") Integer page) {
-
-        return new ResponseEntity<>(new CustomResponseType("Facturas con documentos",
-                "facturas",
-                facturaService.listFacturasWithDocuments(PageRequest.of(page, 10)),
-                "Facturas encontradas").getResponse(), HttpStatus.OK);
-    }
 
 
 }

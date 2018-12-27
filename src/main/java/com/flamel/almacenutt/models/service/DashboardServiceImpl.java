@@ -42,7 +42,7 @@ public class DashboardServiceImpl implements DashboardService{
 
     @Override
     public Long getTotalProveedores() {
-        return productoDao.getTotalProductos();
+        return proveedorDao.getTotalProveedores();
     }
 
     @Override

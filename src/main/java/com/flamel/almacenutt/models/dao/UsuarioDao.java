@@ -17,5 +17,7 @@ public interface UsuarioDao extends JpaRepository<Usuario, Long> {
 
     @Query("select u from Usuario u where u.status=1 order by u.idUsuario desc")
     List<Usuario> findAllUsuarios();
+
+
 }
 

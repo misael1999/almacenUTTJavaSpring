@@ -55,10 +55,6 @@ public class FacturaServiceImpl implements FacturaService {
         return facturaDao.findFacturaLikeTermino(termino);
     }
 
-    @Override
-    public Page<Factura> listFacturasWithDocuments(Pageable pageable) {
-        return facturaDao.listFacturasWithDocuments(pageable);
-    }
 
 
 //    @Override

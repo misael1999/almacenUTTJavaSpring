@@ -63,5 +63,15 @@ public class ValeSalidaServiceImpl implements ValeSalidaService {
         facturaProductoDao.save(facturaProducto);
     }
 
+    @Override
+    public ValeSalida findValeSalidaByNumeroRequisicionAndArea_IdArea(Long numeroRequisicion, Long idArea) {
+        return valeSalidaDao.findValeSalidaByNumeroRequisicionAndArea_IdArea(numeroRequisicion, idArea);
+    }
+
+    @Override
+    public Page<ValeSalida> listValesWithDocuments(Pageable pageable) {
+        return valeSalidaDao.listValesWithDocuments(pageable);
+    }
+
 
 }

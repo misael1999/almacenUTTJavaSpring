@@ -7,7 +7,10 @@ import com.flamel.almacenutt.models.service.ProductoService;
 import com.flamel.almacenutt.models.service.UsuarioService;
 import com.flamel.almacenutt.util.CustomErrorType;
 import com.flamel.almacenutt.util.CustomResponseType;
+import io.jsonwebtoken.security.SignatureException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,9 +38,11 @@ public class ProductoController {
     // Obtener todos los productos almacenados
     @RequestMapping(value = "/productos/page/{page}", method = RequestMethod.GET)
     public ResponseEntity<?> getProductos(@PathVariable("page") Integer page) {
+        Page<Producto> productos = null;
+
+         productos = productoService.findAllProductos(PageRequest.of(page, 15));
         return new ResponseEntity<>(new CustomResponseType("Lista de productos",
-                "productos",
-                productoService.findAllProductos(PageRequest.of(page, 15)), "").getResponse(),
+                "productos", productos, "").getResponse(),
                 HttpStatus.OK);
     }
 
@@ -67,7 +72,13 @@ public class ProductoController {
                     HttpStatus.CONFLICT);
         }
         producto.setIdUsuario(usuario.getIdUsuario());
+        try {
         productoService.saveProducto(producto);
+        } catch (DataAccessException e) {
+            return new ResponseEntity<>(new CustomErrorType("Ocurrio un error al guardar el producto, contacte con el administrador del sistema ",
+                    "Error").getResponse(),
+                    HttpStatus.CONFLICT);
+        }
         return new ResponseEntity<>(new CustomResponseType("Se agreago el producto " + producto.getDescripcion(), "producto", "", "Producto agregado").getResponse(), HttpStatus.CREATED);
     }
 
@@ -88,7 +99,13 @@ public class ProductoController {
                     "Accion denegada").getResponse(),
                     HttpStatus.CONFLICT);
         }
-        productoService.saveProducto(producto);
+        try {
+            productoService.saveProducto(producto);
+        } catch (DataAccessException e) {
+            return new ResponseEntity<>(new CustomErrorType("Ocurrio un error al actualizar el producto, contacte con el administrador del sistema ",
+                    "Error").getResponse(),
+                    HttpStatus.CONFLICT);
+        }
         if (!producto.getStatus()) {
             return new ResponseEntity<>(new CustomResponseType("Se ha eliminado el producto " + producto.getDescripcion(),
                     "", "",

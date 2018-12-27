@@ -16,5 +16,4 @@ public interface FacturaService {
     Page<Factura> listFacturasEntregadas(Pageable pageable);
     Factura getFacturaByFolio(String folio);
     List<Factura> findFacturaLikeTermino(@Param("termino") String termino);
-    Page<Factura> listFacturasWithDocuments(Pageable pageable);
 }

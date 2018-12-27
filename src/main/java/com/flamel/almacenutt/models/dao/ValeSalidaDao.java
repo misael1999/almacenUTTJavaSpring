@@ -24,8 +24,13 @@ public interface ValeSalidaDao extends JpaRepository<ValeSalida, Long> {
 
     ValeSalida findValeSalidaByNumeroRequisicion(Long numeroRequisicion);
 
+    ValeSalida findValeSalidaByNumeroRequisicionAndArea_IdArea(Long numeroRequisicion, Long idArea);
+
     @Query("select v from ValeSalida v where v.area.idArea = ?1")
     List<ValeSalida> findValeSalidaByIdArea(Long idArea);
+
+    @Query("select v from ValeSalida v where v.documento is not null")
+    Page<ValeSalida> listValesWithDocuments(Pageable pageable);
 
     @Query(nativeQuery = true, value = "SELECT a.nombre as area, count(v.id_area) as total from areas a " +
             "left join vales_salidas v on a.id_area = v.id_area " +

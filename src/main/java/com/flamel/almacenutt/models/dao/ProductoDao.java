@@ -15,7 +15,7 @@ import java.util.List;
 @Repository
 public interface ProductoDao extends JpaRepository<Producto,Long> {
 
-    Producto getProductoByClave(String clave);
+    Producto getProductoByClaveAndDescripcion(String clave, String descripcion);
     @Query("select p from Producto p where p.status = 1 order by p.idProducto desc")
     Page<Producto> findAllProductos(Pageable pageable);
 
@@ -23,14 +23,15 @@ public interface ProductoDao extends JpaRepository<Producto,Long> {
     List<Producto> findAllProductosByDescripcionLike(@Param("descripcion") String descripcion);
 
     // REPORTES
-    @Query(nativeQuery = true, value = "select p.*, pr.nombre as proveedor from productos p inner join proveedores pr on pr.id_proveedor = p.id_proveedor " +
+    @Query(nativeQuery = true, value = "select p.clave, p.descripcion, p.cantidad as cantidad, p.unidad_medida as unidadMedida, p.precio, pr.nombre as proveedor " +
+            "from productos p inner join proveedores pr on pr.id_proveedor = p.id_proveedor " +
             "where month(p.fecha_creacion) = ?1 and year(p.fecha_creacion) = ?2 order by p.fecha_creacion desc ")
     List<ReporteProducto> findAllProductosByDate(Integer mes, Integer ano);
 
     @Query("select p from Producto  p where p.idProveedor = ?1")
     List<Producto> getProductosByProveedor(Long idProveedor);
 
-    @Query(nativeQuery = true, value = "select p.clave, p.descripcion, sp.cantidad_entregada as cantidad, p.unidad_medida, p.precio, pr.nombre as proveedor " +
+    @Query(nativeQuery = true, value = "select p.clave, p.descripcion, sp.cantidad_entregada as cantidad, p.unidad_medida as unidadMedida, p.precio, pr.nombre as proveedor " +
             "from vales_salidas v " +
             "inner join salidas_productos sp on v.id_vale_salida = sp.id_vale_salida " +
             "inner join facturas_productos fp on fp.id_factura_producto = sp.id_factura_producto " +

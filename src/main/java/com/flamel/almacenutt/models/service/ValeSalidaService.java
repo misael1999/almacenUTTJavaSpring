@@ -22,6 +22,9 @@ public interface ValeSalidaService {
     List<ValeSalida> getValesByTerminoLike(@Param("termino") String termino);
     ValeSalida getValeSalidaById(Long idVale);
     void updateFacturaProducto(FacturaProducto facturaProducto);
+    ValeSalida findValeSalidaByNumeroRequisicionAndArea_IdArea(Long numeroRequisicion, Long idArea);
+    Page<ValeSalida> listValesWithDocuments(Pageable pageable);
+
 
 
 

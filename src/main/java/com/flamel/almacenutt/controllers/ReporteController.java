@@ -1,9 +1,6 @@
 package com.flamel.almacenutt.controllers;
 
-import com.flamel.almacenutt.models.entity.Area;
-import com.flamel.almacenutt.models.entity.Producto;
-import com.flamel.almacenutt.models.entity.Proveedor;
-import com.flamel.almacenutt.models.entity.ValeSalida;
+import com.flamel.almacenutt.models.entity.*;
 import com.flamel.almacenutt.models.model.ReporteGastoArea;
 import com.flamel.almacenutt.models.model.ReporteProducto;
 import com.flamel.almacenutt.models.model.ReporteProductosValeSalida;
@@ -15,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -44,8 +42,21 @@ public class ReporteController {
     JasperReportServiceImpl jasperReportService;
 
     @RequestMapping(value = "/reportes/productos", method = RequestMethod.GET)
-    public ResponseEntity<byte[]> getReporteProductos(@RequestParam("mes") Integer mes,
-                                                      @RequestParam("anio") Integer anio) {
+    public ResponseEntity<?> getReporteProductos(@RequestParam("mes") Integer mes,
+                                                      @RequestParam("anio") Integer anio, Authentication authentication) {
+
+        Usuario usuario = usuarioService.findByNombreUsuario(authentication.getName());
+        boolean privilegio = false;
+        for (PrivilegioUsuario privilegioUsuario : usuario.getPrivilegios()) {
+            if (privilegioUsuario.getPrivilegio().getNombre().equals("generar vales de salidas")) {
+                privilegio = true;
+                break;
+            }
+        }
+        if (!privilegio) {
+            return new ResponseEntity<>(new CustomErrorType("No tienes permisos para esta accion", "No has ingresado ni un producto").getResponse(), HttpStatus.CONFLICT);
+        }
+
 
         byte[] reporte = null;
         Map<String, Object> params = new HashMap<>();
@@ -63,7 +74,19 @@ public class ReporteController {
 
     // PRODUCTOS POR PROVEEDOR
     @RequestMapping(value = "/reportes/productos/proveedor/{nombreProveedor}", method = RequestMethod.GET)
-    public ResponseEntity<?> getProductosByProveedor(@PathVariable() String nombreProveedor) {
+    public ResponseEntity<?> getProductosByProveedor(@PathVariable() String nombreProveedor, Authentication authentication) {
+
+        Usuario usuario = usuarioService.findByNombreUsuario(authentication.getName());
+        boolean privilegio = false;
+        for (PrivilegioUsuario privilegioUsuario : usuario.getPrivilegios()) {
+            if (privilegioUsuario.getPrivilegio().getNombre().equals("generar vales de salidas")) {
+                privilegio = true;
+                break;
+            }
+        }
+        if (!privilegio) {
+            return new ResponseEntity<>(new CustomErrorType("No tienes permisos para esta accion", "No has ingresado ni un producto").getResponse(), HttpStatus.CONFLICT);
+        }
 
         Proveedor proveedor = proveedorService.getProveedorByNombre(nombreProveedor);
         if (proveedor == null) {
@@ -84,7 +107,19 @@ public class ReporteController {
 
     @RequestMapping(value = "/reportes/areas/gastos", method = RequestMethod.GET)
     public ResponseEntity<?> getAreasGastos(@RequestParam("del") String fecha1,
-                                            @RequestParam("al") String fecha2) {
+                                            @RequestParam("al") String fecha2, Authentication authentication) {
+
+        Usuario usuario = usuarioService.findByNombreUsuario(authentication.getName());
+        boolean privilegio = false;
+        for (PrivilegioUsuario privilegioUsuario : usuario.getPrivilegios()) {
+            if (privilegioUsuario.getPrivilegio().getNombre().equals("generar vales de salidas")) {
+                privilegio = true;
+                break;
+            }
+        }
+        if (!privilegio) {
+            return new ResponseEntity<>(new CustomErrorType("No tienes permisos para esta accion", "No has ingresado ni un producto").getResponse(), HttpStatus.CONFLICT);
+        }
 
         byte[] reporte = null;
         Map<String, Object> params = new HashMap<>();
@@ -103,7 +138,19 @@ public class ReporteController {
     // IMPRIMIR VALE DE SALIDA
 
     @RequestMapping(value = "/generar/vales/{idVale}", method = RequestMethod.GET)
-    public ResponseEntity<byte[]> getValeSalida(@PathVariable("idVale") Long idVale) {
+    public ResponseEntity<?> getValeSalida(@PathVariable("idVale") Long idVale, Authentication authentication) {
+
+        Usuario usuario = usuarioService.findByNombreUsuario(authentication.getName());
+        boolean privilegio = false;
+        for (PrivilegioUsuario privilegioUsuario : usuario.getPrivilegios()) {
+            if (privilegioUsuario.getPrivilegio().getNombre().equals("generar vales de salidas")) {
+                privilegio = true;
+                break;
+            }
+        }
+        if (!privilegio) {
+            return new ResponseEntity<>(new CustomErrorType("No tienes permisos para esta accion", "No has ingresado ni un producto").getResponse(), HttpStatus.CONFLICT);
+        }
 
         byte[] reporte = null;
         ValeSalida vale = valeSalidaService.getValeSalidaById(idVale);
@@ -124,7 +171,20 @@ public class ReporteController {
     @RequestMapping(value = "/reportes/productos/areas", method = RequestMethod.GET)
     public ResponseEntity<?> getAreasGastos(@RequestParam("del") String fecha1,
                                             @RequestParam("al") String fecha2,
-                                            @RequestParam("area") Long idArea) {
+                                            @RequestParam("area") Long idArea, Authentication authentication) {
+
+
+        Usuario usuario = usuarioService.findByNombreUsuario(authentication.getName());
+        boolean privilegio = false;
+        for (PrivilegioUsuario privilegioUsuario : usuario.getPrivilegios()) {
+            if (privilegioUsuario.getPrivilegio().getNombre().equals("generar vales de salidas")) {
+                privilegio = true;
+                break;
+            }
+        }
+        if (!privilegio) {
+            return new ResponseEntity<>(new CustomErrorType("No tienes permisos para esta accion", "No has ingresado ni un producto").getResponse(), HttpStatus.CONFLICT);
+        }
 
         Area area = usuarioService.findAreaByid(idArea);
         if (area == null) {
@@ -138,7 +198,6 @@ public class ReporteController {
         params.put("fecha2", fecha2);
         params.put("area", area.getNombre());
         List<ReporteProducto> productosArea = reporteService.getProductosByArea(idArea, fecha1, fecha2);
-        System.out.println(productosArea.size());
         for (ReporteProducto producto: productosArea) {
             total += producto.getPrecio() * producto.getCantidad();
         }
