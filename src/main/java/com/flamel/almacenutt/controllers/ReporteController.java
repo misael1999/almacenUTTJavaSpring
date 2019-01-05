@@ -155,10 +155,13 @@ public class ReporteController {
         byte[] reporte = null;
         ValeSalida vale = valeSalidaService.getValeSalidaById(idVale);
         Map<String, Object> params = new HashMap<>();
+        String fechaSeparada[] = vale.getFechaEntrega().split("-");
+        String mesSeparado = fechaSeparada[1].replace("0", "");
+        String fecha = fechaSeparada[2] + " de " + obtenerNombreMes(Integer.parseInt(mesSeparado)) + " del " + fechaSeparada[0];
         params.put("numeroRequisicion", String.valueOf(vale.getNumeroRequisicion()));
         params.put("area", vale.getArea().getNombre().toUpperCase());
         params.put("responsable", vale.getArea().getResponsable());
-        params.put("fechaEntrega", String.valueOf(vale.getFechaEntrega()));
+        params.put("fechaEntrega", fecha);
         List<ReporteProductosValeSalida> valeSalida = reporteService.getProductosByValeSalidaId(vale.getIdValeSalida());
         JRBeanCollectionDataSource ds = new JRBeanCollectionDataSource(valeSalida);
 
@@ -213,7 +216,7 @@ public class ReporteController {
     }
 
     public String obtenerNombreMes(Integer mes) {
-        String meses[] = {"", "ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"};
+        String meses[] = {"", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"};
         return meses[mes];
     }
 

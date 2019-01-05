@@ -28,7 +28,7 @@ public class Area implements Serializable {
     }
 
     public String getNombre() {
-        return nombre;
+        return nombre.substring(0, 1).toUpperCase() + nombre.substring(1);
     }
 
     public void setNombre(String nombre) {
@@ -36,11 +36,16 @@ public class Area implements Serializable {
     }
 
     public String getResponsable() {
-        return responsable;
+        String[] nombre = responsable.split(" ");
+        String nombreCompleto = "";
+        for (String s : nombre) {
+            nombreCompleto += s.substring(0, 1).toUpperCase() + s.substring(1) + " ";
+        }
+        return nombreCompleto;
     }
 
     public void setResponsable(String responsable) {
-        this.responsable = responsable.toLowerCase();
+        this.responsable = responsable.replaceAll("\\s+"," ").toLowerCase();
     }
 
     public Boolean getStatus() {
