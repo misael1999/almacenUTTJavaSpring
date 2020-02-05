@@ -66,7 +66,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true);
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200", "http://localhost:8888"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200", "http://localhost:4202", "http://localhost:8888"));
         configuration.setAllowedMethods(Arrays.asList("GET", "PUT", "HEAD", "OPTIONS", "POST", "DELETE", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("Access-Control-Allow-Origin", "Access-Control-Allow-Headers", "Origin", "X-Requested-With", "Content-Type", "CORELATION_ID", "Authorization", "X-Api-Key", "X-Amz-Date", "accept", "Access-Control-Allow-Methods"));
         configuration.setExposedHeaders(Arrays.asList("Content-Length", "Content-Range", "SessionId"));
